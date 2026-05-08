@@ -4,7 +4,7 @@ Shared git hooks for Lefthook — declarative YAML configs + shell scripts in a 
 
 Centralized hook definitions that any project can opt into via Lefthook remotes. No package install, no duplication.
 
-<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/3df9da19-1974-43d7-bc69-0c6ad797f190" />
+<img width="1024" alt="git commit hooks" src="https://github.com/user-attachments/assets/a47fc2c1-e679-46e6-b39e-b679103151d6" />
 
 
 ## How it works
