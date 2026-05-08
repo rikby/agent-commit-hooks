@@ -1,0 +1,14 @@
+# Block Co-Authored-By in commit messages (no AI attribution)
+# P1 — commit hygiene
+
+commit-msg:
+  commands:
+    block-co-authored-by:
+      run: |
+        if grep -qi "Co-Authored-By" {1}; then
+          echo "❌ ERROR: Commit message contains 'Co-Authored-By'"
+          echo ""
+          echo "   AI/tool attribution is not allowed in commit messages."
+          echo "   Please remove 'Co-Authored-By' lines and try again."
+          exit 1
+        fi

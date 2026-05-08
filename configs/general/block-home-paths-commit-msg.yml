@@ -1,0 +1,7 @@
+# Block absolute home paths in commit messages
+# P1
+
+commit-msg:
+  commands:
+    block-home-paths-commit-msg:
+      run: sh .git/info/lefthook-remotes/agent-commit-hooks/scripts/block-home-paths-commit-msg.sh {1}

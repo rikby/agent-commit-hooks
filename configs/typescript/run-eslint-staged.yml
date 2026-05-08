@@ -1,0 +1,14 @@
+# ESLint on staged files
+# P1 — requires: npm i -D eslint (+ eslint config)
+
+pre-commit:
+  commands:
+    eslint-staged:
+      glob: "*.{ts,tsx}"
+      run: |
+        if ! npx eslint --version >/dev/null 2>&1; then
+          echo "❌ eslint not found — install: npm i -D eslint"
+          exit 1
+        fi
+        npx eslint --fix {staged_files}
+      stage_fixed: true

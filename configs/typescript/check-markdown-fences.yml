@@ -1,0 +1,15 @@
+# Block commits with broken markdown code blocks
+# P1 — requires: npm i -D markdownlint-cli2
+# Two sub-checks: parity (pure shell) + style (markdownlint-cli2)
+
+pre-commit:
+  commands:
+    check-markdown-fences-parity:
+      glob: "*.md"
+      run: sh .git/info/lefthook-remotes/agent-commit-hooks/scripts/check-markdown-fences-parity.sh {staged_files}
+      env:
+        MD_SKIP_DIRS: ""
+
+    check-markdown-fences-style:
+      glob: "*.md"
+      run: sh .git/info/lefthook-remotes/agent-commit-hooks/scripts/check-markdown-fences-style.sh {staged_files}

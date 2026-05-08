@@ -1,0 +1,13 @@
+# Block auto-generated artifacts from being committed
+# P1 — code hygiene
+#
+# Configurable via BLOCK_PATTERNS env var (comma-separated glob patterns).
+# Default: common build/tool artifacts + OS metadata.
+#
+# Receives staged files as arguments ($@) — lefthook resolves {staged_files}
+# in the YAML run: directive and passes them as args.
+
+pre-commit:
+  commands:
+    block-generated-files:
+      run: sh .git/info/lefthook-remotes/agent-commit-hooks/scripts/block-generated-files.sh {staged_files}

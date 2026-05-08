@@ -1,0 +1,9 @@
+# Block absolute home paths in staged code files
+# P0 — prevents /Users/kirby/... leaks
+
+pre-commit:
+  commands:
+    block-home-paths-code:
+      run: sh .git/info/lefthook-remotes/agent-commit-hooks/scripts/block-home-paths-code.sh
+      exclude:
+        - "^\\.husky/"

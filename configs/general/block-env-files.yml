@@ -1,0 +1,20 @@
+# Block .env files from being committed (except .env.sample and .env.example)
+# P0 — secrets leak prevention
+
+pre-commit:
+  commands:
+    block-env-files:
+      glob: ".env*"
+      exclude:
+        - "^\\.env\\.sample$"
+        - "^\\.env\\.example$"
+      run: |
+        for f in {staged_files}; do
+          case "$f" in
+            .env.sample|.env.example) continue ;;
+          esac
+          echo "❌ Error: Attempting to commit environment file: $f"
+          echo "Environment files contain secrets and should not be committed."
+          echo "Allowed files are: .env.sample, .env.example"
+          exit 1
+        done

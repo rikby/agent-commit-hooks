@@ -1,0 +1,94 @@
+#!/bin/sh
+# check-deps — CLI tool to verify external dependencies for enabled lefthook hooks
+#
+# Reads the project's lefthook.yml, determines which remote configs are enabled,
+# checks PATH for required tools, and prints a ✅/❌ report.
+#
+# Part of @kirby/lefthook-scripts package.
+
+check_deps() {
+  lefthook_yml="lefthook.yml"
+
+  if [ ! -f "$lefthook_yml" ]; then
+    echo "❌ No lefthook.yml found in current directory"
+    return 1
+  fi
+
+  echo "Checking dependencies for enabled hooks..."
+  echo ""
+
+  found=0
+  missing=0
+
+  # Built-in tools (always required by at least one hook)
+  for tool in git grep awk sed; do
+    if command -v "$tool" >/dev/null 2>&1; then
+      found=$((found + 1))
+    else
+      echo "  ❌ $tool          (built-in — should always exist)"
+      missing=$((missing + 1))
+    fi
+  done
+
+  # Check which configs are enabled and test their dependencies
+  yml_content=$(cat "$lefthook_yml")
+
+  # markdownlint-cli2 — required by configs/typescript/check-markdown-fences.yml
+  if echo "$yml_content" | grep -q "check-markdown-fences"; then
+    if command -v markdownlint-cli2 >/dev/null 2>&1; then
+      echo "  ✅ markdownlint-cli2            (configs/typescript/check-markdown-fences.yml)"
+      found=$((found + 1))
+    else
+      echo "  ❌ markdownlint-cli2            (configs/typescript/check-markdown-fences.yml)"
+      echo "     Install: npm i -D markdownlint-cli2"
+      missing=$((missing + 1))
+    fi
+  fi
+
+  # knip — required by configs/typescript/run-knip.yml
+  if echo "$yml_content" | grep -q "run-knip"; then
+    if npx knip --help >/dev/null 2>&1; then
+      echo "  ✅ knip                         (configs/typescript/run-knip.yml)"
+      found=$((found + 1))
+    else
+      echo "  ❌ knip                         (configs/typescript/run-knip.yml)"
+      echo "     Install: npm i -D knip"
+      missing=$((missing + 1))
+    fi
+  fi
+
+  # eslint — required by configs/typescript/run-eslint-staged.yml
+  if echo "$yml_content" | grep -q "run-eslint-staged"; then
+    if npx eslint --version >/dev/null 2>&1; then
+      echo "  ✅ eslint                       (configs/typescript/run-eslint-staged.yml)"
+      found=$((found + 1))
+    else
+      echo "  ❌ eslint                       (configs/typescript/run-eslint-staged.yml)"
+      echo "     Install: npm i -D eslint"
+      missing=$((missing + 1))
+    fi
+  fi
+
+  # audit script — required by configs/localization/audit-locale-files.yml
+  if echo "$yml_content" | grep -q "audit-locale-files"; then
+    audit_script="${AUDIT_SCRIPT:-./scripts/audit-localization.sh}"
+    if [ -f "$audit_script" ]; then
+      echo "  ✅ audit script ($audit_script)  (configs/localization/audit-locale-files.yml)"
+      found=$((found + 1))
+    else
+      echo "  ❌ audit script ($audit_script)  (configs/localization/audit-locale-files.yml)"
+      echo "     Create the audit script at: $audit_script"
+      missing=$((missing + 1))
+    fi
+  fi
+
+  echo ""
+  if [ "$missing" -eq 0 ]; then
+    echo "✅ All $found dependencies found. Ready to commit."
+  else
+    echo "$found/$((found + missing)) tools found. $missing missing."
+    return 1
+  fi
+}
+
+check_deps

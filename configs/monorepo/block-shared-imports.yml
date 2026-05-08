@@ -1,0 +1,11 @@
+# Block relative imports to shared module (enforce path alias)
+# P1
+
+pre-commit:
+  commands:
+    block-shared-imports:
+      glob: "*.ts"
+      run: sh .git/info/lefthook-remotes/agent-commit-hooks/scripts/block-shared-imports.sh
+      env:
+        BLOCKED_IMPORT_PATTERN: 'from ["\x27](\.\./)+shared/'
+        ALIAS: "@mdt/shared"

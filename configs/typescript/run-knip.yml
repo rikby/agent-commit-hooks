@@ -1,0 +1,13 @@
+# Dead code detection via knip
+# P1 — requires: npm i -D knip
+
+pre-commit:
+  commands:
+    run-knip:
+      glob: "*.ts"
+      run: |
+        if ! npx knip --help >/dev/null 2>&1; then
+          echo "❌ knip not found — install: npm i -D knip"
+          exit 1
+        fi
+        npx knip --files
