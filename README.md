@@ -41,6 +41,7 @@ Other options: `brew install lefthook`, `npm install -D @evilmartians/lefthook`,
 [lefthook guides](https://github.com/evilmartians/lefthook#guides) for more.
 
 See [INSTALL.md](INSTALL.md) for full setup and agent hook-bypass protection.
+See [docs/eslint-import-alias.md](docs/eslint-import-alias.md) for ESLint import alias plugin setup.
 
 ## Available Hooks
 
@@ -62,7 +63,7 @@ See [INSTALL.md](INSTALL.md) for full setup and agent hook-bypass protection.
 | `check-markdown-fences-parity` | P1 | Detects unclosed code fences (`` ``` ``/`~~~`) in `.md` files | None |
 | `check-markdown-fences-style` | P1 | Runs `markdownlint-cli2` for MD031/040/046/048 | `markdownlint-cli2` |
 | `run-knip` | P1 | Dead code detection | `knip` |
-| `run-eslint-staged` | P1 | Lints staged `.ts`/`.tsx` files, auto-fixes | `eslint` |
+| `run-eslint-staged` | P1 | Lints staged `.ts`/`.tsx` files, auto-fixes ([import alias plugin](docs/eslint-import-alias.md)) | `eslint` |
 
 ### Specialized
 
@@ -115,7 +116,8 @@ agent-commit-hooks/
 │   └── monorepo/                     # Multi-package projects
 ├── scripts/                          # Shell scripts executed by hook configs
 ├── tests/                            # Shell script tests
-├── docs/                             # Design docs, hook reference
+├── docs/                             # Installation guides & hook reference
+│   └── eslint-import-alias.md       # ESLint import alias plugin setup
 └── INSTALL.md                        # Installation guide
 ```
 

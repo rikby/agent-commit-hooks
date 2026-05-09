@@ -1,5 +1,6 @@
 # ESLint on staged files
 # P1 — requires: npm i -D eslint (+ eslint config)
+# Recommended: https://github.com/rikby/agent-commit-hooks/blob/main/docs/eslint-import-alias.md
 
 pre-commit:
   commands:
