@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.1.0 (2026-05-10)
+
+### Fixed
+
+- `ref:` pinning broke all script-referencing hooks. Migrated from hardcoded `run:` paths to lefthook's native `scripts:` mechanism so hooks resolve correctly with or without a version tag in `remotes:`.
+
+### Changed
+
+- YAML configs now use `scripts:` + `runner: sh` instead of `commands:` + `run:`. Consumers who override these hooks in their `lefthook.yml` should update from `commands:` to `scripts:` to match.
+- Scripts now live in `.lefthook/<hook>/` alongside the legacy `scripts/` directory.
+
 ## v0.1.0 (2026-05-08)
 
 Initial release. Shared lefthook configs + scripts in a single repo.
