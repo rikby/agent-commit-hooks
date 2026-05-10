@@ -22,6 +22,9 @@ Centralized hook definitions that any project can opt into via Lefthook remotes.
 │  │       - typesc..│    │                          │    block-home-paths-code.sh  │
 │  └─────────────────┘    │                          │    ...                       │
 └─────────────────────────┘                          └──────────────────────────────┘
+
+⚠️ --no-verify guardrail is mandatory for AI agents
+   (see INSTALL.md §4)
 ```
 
 **Single repo, two layers:**
@@ -40,7 +43,7 @@ bun add -D @evilmartians/lefthook
 Other options: `brew install lefthook`, `npm install -D @evilmartians/lefthook`, or see
 [lefthook guides](https://github.com/evilmartians/lefthook#guides) for more.
 
-See [INSTALL.md](INSTALL.md) for full setup and agent hook-bypass protection.
+See [INSTALL.md](INSTALL.md) for full setup. **⚠️ Blocking `--no-verify` for AI agents is mandatory** — see INSTALL.md §4.
 See [docs/eslint-import-alias.md](docs/eslint-import-alias.md) for ESLint import alias plugin setup.
 
 ## Available Hooks

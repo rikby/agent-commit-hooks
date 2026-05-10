@@ -126,21 +126,8 @@ Create `opencode.json`:
 
 ### Pi
 
-Install the `pi-autohooks` extension, then add a hook script:
-
 ```sh
-mkdir -p .pi/autohooks/pre-tool-use
-```
-
-Create `.pi/autohooks/pre-tool-use/block-no-verify.sh`:
-
-```sh
-#!/bin/sh
-bunx block-no-verify
-```
-
-```sh
-chmod +x .pi/autohooks/pre-tool-use/block-no-verify.sh
+pi install https://github.com/rikby/pi-block-no-verify
 ```
 
 ### Cursor
