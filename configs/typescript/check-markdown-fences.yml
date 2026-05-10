@@ -3,13 +3,13 @@
 # Two sub-checks: parity (pure shell) + style (markdownlint-cli2)
 
 pre-commit:
-  commands:
-    check-markdown-fences-parity:
+  scripts:
+    "check-markdown-fences-parity.sh":
+      runner: sh
       glob: "*.md"
-      run: sh .git/info/lefthook-remotes/agent-commit-hooks/scripts/check-markdown-fences-parity.sh {staged_files}
       env:
         MD_SKIP_DIRS: ""
 
-    check-markdown-fences-style:
+    "check-markdown-fences-style.sh":
+      runner: sh
       glob: "*.md"
-      run: sh .git/info/lefthook-remotes/agent-commit-hooks/scripts/check-markdown-fences-style.sh {staged_files}

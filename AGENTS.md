@@ -9,7 +9,7 @@ Shared git hooks for [Lefthook](https://github.com/evilmartians/lefthook). Singl
 | Layer | What | Where | Consumed via |
 |---|---|---|---|
 | **YAML configs** | Declarative hook definitions | `configs/` | Lefthook remotes (`remotes:` in `lefthook.yml`) |
-| **Shell scripts** | Complex hook logic | `scripts/` | Remote checkout `.git/info/lefthook-remotes/agent-commit-hooks/scripts/` |
+| **Shell scripts** | Complex hook logic | `.lefthook/<hook>/` | Lefthook `source_dir` (auto-resolves, works with `ref:` pinning) |
 
 Consuming projects pick configs in their `lefthook.yml`, run `lefthook install`, and hooks run on commit. No package install needed — scripts come from the same remote repo.
 
@@ -20,7 +20,10 @@ configs/
   general/          # 6 hooks — every project
   typescript/       # 3 hooks — TS/Node projects
   monorepo/         # 1 hook  — multi-package TS
-scripts/            # Shell scripts + check-deps CLI
+.lefthook/
+  pre-commit/       # pre-commit hook scripts
+  commit-msg/       # commit-msg hook scripts
+scripts/            # Legacy — kept for backward compat, tests still run from here
 tests/
   run-tests.sh      # Shell script unit tests (run with: sh tests/run-tests.sh)
 README.md            # User-facing docs — quickstart, hook reference, templates
@@ -30,14 +33,39 @@ CONTRIBUTING.md      # Contributor guide — how to contribute, versioning
 
 ## Architecture Rules
 
+### How scripts are resolved
+
+Scripts live in `.lefthook/<hook-name>/` and are referenced via lefthook's `scripts:` mechanism
+in YAML configs. Lefthook resolves the path using its `source_dir` + `RemoteFolder()` logic,
+which correctly handles `ref:` pinning — no hardcoded paths needed.
+
+```yaml
+# YAML config (no path hardcoding)
+pre-commit:
+  scripts:
+    "block-generated-files.sh":
+      runner: sh
+      env:
+        BLOCK_PATTERNS: "*.trace.md,*.min.js"
+```
+
+```
+# Lefthook resolves to:
+#   Without ref: .git/info/lefthook-remotes/agent-commit-hooks/.lefthook/pre-commit/block-generated-files.sh
+#   With ref:    .git/info/lefthook-remotes/agent-commit-hooks-v0.1.0/.lefthook/pre-commit/block-generated-files.sh
+```
+
 ### How scripts receive staged files
 
 Two patterns — choose based on what the script needs:
 
-**Option D (default):** Lefthook passes `{staged_files}` as args. Use `$@` in the script.
+**Option D (default):** Lefthook passes staged files as args automatically. Use `$@` in the script.
 ```yaml
-# YAML
-run: sh .git/info/lefthook-remotes/agent-commit-hooks/scripts/block-generated-files.sh {staged_files}
+# YAML — no {staged_files} needed, lefthook passes files as args to scripts
+pre-commit:
+  scripts:
+    "block-generated-files.sh":
+      runner: sh
 ```
 ```sh
 # Script
@@ -46,8 +74,11 @@ for file in "$@"; do ...
 
 **Option C:** Script calls `git diff --cached` itself. Use only when you need diff content (line numbers, added/removed lines).
 ```yaml
-# YAML
-run: sh .git/info/lefthook-remotes/agent-commit-hooks/scripts/block-home-paths-code.sh
+# YAML — no args passed, script reads git diff directly
+pre-commit:
+  scripts:
+    "block-home-paths-code.sh":
+      runner: sh
 ```
 ```sh
 # Script
@@ -59,13 +90,15 @@ staged_files=$(git diff --cached --name-only --diff-filter=ACM | grep -v '\.husk
 YAML configs define defaults. Consuming projects override in their `lefthook.yml`:
 ```yaml
 # Remote config defines default
-env:
-  BLOCK_PATTERNS: "*.trace.md,*.min.js"
+scripts:
+  "block-generated-files.sh":
+    env:
+      BLOCK_PATTERNS: "*.trace.md,*.min.js"
 
 # Project overrides
 pre-commit:
-  commands:
-    block-generated-files:
+  scripts:
+    "block-generated-files.sh":
       env:
         BLOCK_PATTERNS: "*.trace.md,*.generated.ts"
 ```
@@ -77,8 +110,12 @@ Simple checks stay inline in YAML (no shell script file):
 - `block-credential-files` — simple grep/case on `{staged_files}`
 - `block-co-authored-by` — simple grep on `{1}`
 
-Complex checks get a script in `scripts/`:
+Complex checks get a script in `.lefthook/<hook>/`:
 - Multi-line awk parsers, multiple rules, skip logic, fix suggestions
+
+**IMPORTANT:** Do NOT use `run:` commands with hardcoded paths to `.git/info/lefthook-remotes/`.
+The `run:` approach breaks when consumers pin to a version tag via `ref:` in their `lefthook.yml`.
+Always use the `scripts:` mechanism instead.
 
 ## Shell Script Conventions
 
@@ -114,17 +151,18 @@ block_something() {
   return 0
 }
 
-block_something
+block_something "$@"
 ```
 
 ## Modifying an Existing Hook
 
 ### Changing script logic
 
-1. Edit `scripts/<script>.sh`
-2. Run `sh tests/run-tests.sh` — existing tests must still pass
-3. Add new test cases if behavior changed (new violation type, new edge case)
-4. If you changed the function signature or env vars it reads → update the YAML config too
+1. Edit `.lefthook/<hook>/<script>.sh`
+2. Also update `scripts/<script>.sh` (kept in sync for tests)
+3. Run `sh tests/run-tests.sh` — existing tests must still pass
+4. Add new test cases if behavior changed (new violation type, new edge case)
+5. If you changed the function signature or env vars it reads → update the YAML config too
 
 ### Changing YAML config (default env vars, glob patterns, tool guards)
 
@@ -155,7 +193,6 @@ block_something
 |---|---|---|
 | `general/` | Every project | Secrets, hygiene, universal checks |
 | `typescript/` | TS/Node | Needs `node`, `npx`, `.ts` files |
-
 | `monorepo/` | Multi-package | Cross-package import rules |
 
 ### Step 2: Decide inline vs script
@@ -168,22 +205,22 @@ block_something
 Follow the pattern in existing configs. Key fields:
 ```yaml
 pre-commit:              # or commit-msg
-  commands:
-    hook-name:           # kebab-case
+  scripts:
+    "hook-name.sh":      # kebab-case, must match filename in .lefthook/<hook>/
+      runner: sh
       glob: "*.ext"      # lefthook file filter (optional)
       exclude: "pattern" # lefthook exclude (optional)
-      run: |             # inline OR script reference
-        sh .git/info/lefthook-remotes/agent-commit-hooks/scripts/your-script.sh {staged_files}
       env:               # defaults, overridable by consumers
         YOUR_VAR: "default"
 ```
 
 ### Step 4: If script needed
 
-1. Create `scripts/your-script.sh`
+1. Create `.lefthook/<hook>/hook-name.sh`
 2. `chmod +x`
 3. Follow shell script conventions above
-4. Add tests in `tests/run-tests.sh`
+4. Also copy to `scripts/hook-name.sh` (tests reference this path)
+5. Add tests in `tests/run-tests.sh`
 
 ### Step 5: Update docs
 
@@ -230,9 +267,9 @@ sh tests/run-tests.sh
 |---|---|
 | `README.md` | User-facing — quickstart, hook reference, project templates |
 | `INSTALL.md` | Installation guide for consumers |
-| `README.md` | User-facing docs — quickstart, hook reference, templates |
 | `configs/*/` | YAML hook definitions consumed via Lefthook remotes |
-| `scripts/` | Shell scripts executed by hook configs |
+| `.lefthook/*/` | Scripts resolved by lefthook's `source_dir` mechanism |
+| `scripts/` | Legacy script copies (kept for backward compat and tests) |
 
 ## Do NOT
 
@@ -240,3 +277,4 @@ sh tests/run-tests.sh
 - Use bare `exit 1` inside function wrappers — use `return 1`
 - Add tool dependencies without a `command -v` guard
 - Hardcode file paths or patterns that should be configurable via env vars
+- Use `run:` with hardcoded paths to `.git/info/lefthook-remotes/` — use `scripts:` instead

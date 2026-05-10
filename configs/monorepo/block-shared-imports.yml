@@ -1,11 +1,13 @@
 # Block relative imports to shared module (enforce path alias)
 # P1
+#
+# Uses git diff --cached directly (scans file content, not file args).
 
 pre-commit:
-  commands:
-    block-shared-imports:
+  scripts:
+    "block-shared-imports.sh":
+      runner: sh
       glob: "*.ts"
-      run: sh .git/info/lefthook-remotes/agent-commit-hooks/scripts/block-shared-imports.sh
       env:
         BLOCKED_IMPORT_PATTERN: 'from ["\x27](\.\./)+shared/'
         ALIAS: "@mdt/shared"

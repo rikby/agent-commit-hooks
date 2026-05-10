@@ -1,7 +1,9 @@
 # Block absolute home paths in commit messages
 # P1
+#
+# Lefthook passes commit message file path as $1 automatically.
 
 commit-msg:
-  commands:
-    block-home-paths-commit-msg:
-      run: sh .git/info/lefthook-remotes/agent-commit-hooks/scripts/block-home-paths-commit-msg.sh {1}
+  scripts:
+    "block-home-paths-commit-msg.sh":
+      runner: sh

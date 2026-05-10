@@ -18,10 +18,11 @@ Centralized hook definitions that any project can opt into via Lefthook remotes.
 │  │ remotes:        │    │   │ configs you want │   │  └─ configs/typescript/      │
 │  │   - git_url: .. │    │   └──────────────────┘   │     check-markdown-          │
 │  │     configs:    │    │                          │       fences.yml             │
-│  │       - general/│    │                          │  └─ scripts/                 │
-│  │       - typesc..│    │                          │    block-home-paths-code.sh  │
-│  └─────────────────┘    │                          │    ...                       │
-└─────────────────────────┘                          └──────────────────────────────┘
+│  │       - general/│    │                          │  └─ .lefthook/                │
+│  │       - typesc..│    │                          │    pre-commit/               │
+│  └─────────────────┘    │                          │      block-home-paths-       │
+└─────────────────────────┘                          │        code.sh  ...          │
+                                                       └──────────────────────────────┘
 
 ⚠️ --no-verify guardrail is mandatory for AI agents
    (see INSTALL.md §4)
@@ -32,7 +33,7 @@ Centralized hook definitions that any project can opt into via Lefthook remotes.
 | Layer | What | Where | How |
 |---|---|---|---|
 | **YAML configs** | Declarative hook definitions | `configs/` | Lefthook fetches at `lefthook install` |
-| **Shell scripts** | Complex logic (awk, grep, multi-step) | `scripts/` | Referenced via `.git/info/lefthook-remotes/agent-commit-hooks/scripts/` |
+| **Shell scripts** | Complex logic (awk, grep, multi-step) | `.lefthook/<hook>/` | Lefthook resolves via `source_dir` (works with `ref:` pinning) |
 
 ## Install
 
@@ -81,16 +82,16 @@ See [docs/eslint-import-alias.md](docs/eslint-import-alias.md) for ESLint import
 ```yaml
 # lefthook.yml (project-level overrides merge with remote config)
 pre-commit:
-  commands:
-    block-generated-files:
+  scripts:
+    "block-generated-files.sh":
       env:
         # Narrow/extend blocked patterns
         BLOCK_PATTERNS: "*.trace.md,*.generated.ts"
-    check-markdown-fences-parity:
+    "check-markdown-fences-parity.sh":
       env:
         # Skip nested markdown directories
         MD_SKIP_DIRS: "prompts,templates"
-    block-shared-imports:
+    "block-shared-imports.sh":
       env:
         BLOCKED_IMPORT_PATTERN: 'from ["\x27](\.\./)+shared/'
         ALIAS: "@myorg/shared"
@@ -117,7 +118,10 @@ agent-commit-hooks/
 │   ├── general/                      # Every project
 │   ├── typescript/                   # TS/Node projects
 │   └── monorepo/                     # Multi-package projects
-├── scripts/                          # Shell scripts executed by hook configs
+├── .lefthook/                        # Scripts resolved by lefthook source_dir
+│   ├── pre-commit/                   # pre-commit hook scripts
+│   └── commit-msg/                   # commit-msg hook scripts
+├── scripts/                          # Legacy scripts (kept for backward compat)
 ├── tests/                            # Shell script tests
 ├── docs/                             # Installation guides & hook reference
 │   └── eslint-import-alias.md       # ESLint import alias plugin setup

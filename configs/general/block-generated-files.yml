@@ -4,10 +4,11 @@
 # Configurable via BLOCK_PATTERNS env var (comma-separated glob patterns).
 # Default: common build/tool artifacts + OS metadata.
 #
-# Receives staged files as arguments ($@) — lefthook resolves {staged_files}
-# in the YAML run: directive and passes them as args.
+# Lefthook passes staged files as arguments ($@) automatically.
 
 pre-commit:
-  commands:
-    block-generated-files:
-      run: sh .git/info/lefthook-remotes/agent-commit-hooks/scripts/block-generated-files.sh {staged_files}
+  scripts:
+    "block-generated-files.sh":
+      runner: sh
+      env:
+        BLOCK_PATTERNS: "*.trace.md,*.min.js,*.min.css,*.generated.ts,*.map,*.log,.DS_Store,Thumbs.db"
