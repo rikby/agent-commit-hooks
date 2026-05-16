@@ -11,7 +11,11 @@
 # Uses git diff --cached directly (Option C) because it scans file content.
 
 block_shared_imports() {
-  blocked_pattern="${BLOCKED_IMPORT_PATTERN:-from ['\"](\.\.\/)+shared\/}"
+  if [ -n "$BLOCKED_IMPORT_PATTERN" ]; then
+    blocked_pattern="$BLOCKED_IMPORT_PATTERN"
+  else
+    blocked_pattern="from ['\"]+(\\.\\./)+shared/"
+  fi
   alias="${ALIAS:-@mdt/shared}"
 
   # Get list of staged .ts files (excluding .d.ts files)
