@@ -64,7 +64,7 @@ See [docs/eslint-import-alias.md](docs/eslint-import-alias.md) for ESLint import
 
 | Hook | Priority | What it does | Dependencies |
 |---|---|---|---|
-| `check-markdown-fences-parity` | P1 | Detects unclosed code fences (`` ``` ``/`~~~`) in `.md` files | None |
+| `check-markdown-fences-parity` | P1 | Detects unclosed fences, closing fences with info strings, bare opening fences; autofix with `--fix` / `--fix-staged` | None |
 | `check-markdown-fences-style` | P1 | Runs `markdownlint-cli2` for MD031/040/046/048 | `markdownlint-cli2` |
 | `run-knip` | P1 | Dead code detection | `knip` |
 | `run-eslint-staged` | P1 | Lints staged `.ts`/`.tsx` files, auto-fixes ([import alias plugin](docs/eslint-import-alias.md)) | `eslint` |

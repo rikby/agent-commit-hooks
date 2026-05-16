@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.2.0 (2026-05-16)
+
+### Added
+
+- `check-markdown-fences-parity` now detects closing fences with info strings (e.g. ` ```text ` used as closer) — a CommonMark violation that markdownlint misses
+- `check-markdown-fences-parity` now detects bare opening fences (` ``` ` with no language) and adds `text` via autofix
+- `--fix` flag: fix specific files in place
+- `--fix-staged` flag: reads staged `.md` files from git, fixes them, re-stages them — one command to copy-paste from hook output
+- Handles indented fences (up to 3 spaces per CommonMark spec), preserves indentation on fix
+- Concise one-line-per-file error output with copy-paste fix command
+- `.lefthook/pre-commit/README.md` — hook reference and usage patterns
+- 7 new tests (27 total)
+
 ## v0.1.0 (2026-05-10)
 
 ### Fixed
