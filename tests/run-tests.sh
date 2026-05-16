@@ -136,6 +136,112 @@ else
   fail "should allow markdown with no fences"
 fi
 
+# Test 11: detects closing fence with info string
+printf '```text
+some code
+```text
+' > bad-close.md
+git add bad-close.md
+if sh "$SCRIPT_DIR/check-markdown-fences-parity.sh" bad-close.md >/dev/null 2>&1; then
+  fail "should detect closing fence with info string"
+else
+  pass "detects closing fence with info string"
+fi
+
+# Test 12: --fix strips info string from closing fences
+printf '```text
+code block
+```text
+' > fix-close.md
+git add fix-close.md
+sh "$SCRIPT_DIR/check-markdown-fences-parity.sh" --fix fix-close.md >/dev/null 2>&1
+# After fix, second fence (closer) should be bare ```
+second_fence=$(awk 'FNR==3{print}' fix-close.md)
+if [ "$second_fence" = '```' ]; then
+  pass "--fix strips info string from closing fences"
+else
+  fail "--fix should strip info string from closing fence, got: $second_fence"
+fi
+
+# Test 13: --fix adds text to bare opening fences
+printf '```
+code block
+```
+' > fix-bare.md
+git add fix-bare.md
+sh "$SCRIPT_DIR/check-markdown-fences-parity.sh" --fix fix-bare.md >/dev/null 2>&1
+# After fix, opening fence should have language
+first_fence=$(awk '/^```/{print; exit}' fix-bare.md)
+if [ "$first_fence" = '```text' ]; then
+  pass "--fix adds text to bare opening fences"
+else
+  fail "--fix should add text to bare opening fence, got: $first_fence"
+fi
+
+# Test 14: well-formed file passes after --fix (idempotent)
+printf '```bash
+echo hi
+```
+' > already-good.md
+git add already-good.md
+sh "$SCRIPT_DIR/check-markdown-fences-parity.sh" --fix already-good.md >/dev/null 2>&1
+if sh "$SCRIPT_DIR/check-markdown-fences-parity.sh" already-good.md >/dev/null 2>&1; then
+  pass "--fix is idempotent on well-formed files"
+else
+  fail "--fix should not break well-formed files"
+fi
+
+# Test 15: --fix-staged reads from git, fixes, and re-stages
+printf '```text
+code block
+```text
+' > fix-staged.md
+git add fix-staged.md
+sh "$SCRIPT_DIR/check-markdown-fences-parity.sh" --fix-staged >/dev/null 2>&1
+# Closer should be bare
+second_fence=$(awk 'FNR==3{print}' fix-staged.md)
+if [ "$second_fence" = '```' ]; then
+  pass "--fix-staged fixes files from git staging area"
+else
+  fail "--fix-staged should fix closing fence, got: $second_fence"
+fi
+# File should be re-staged (show in diff)
+if git diff --cached --name-only | grep -q 'fix-staged.md'; then
+  pass "--fix-staged re-stages fixed files"
+else
+  fail "--fix-staged should re-stage fixed files"
+fi
+
+# Test 16: detects indented closing fence with info string
+printf '1. List item
+
+   ```text
+   code
+   ```text
+' > indented-close.md
+git add indented-close.md
+if sh "$SCRIPT_DIR/check-markdown-fences-parity.sh" indented-close.md >/dev/null 2>&1; then
+  fail "should detect indented closing fence with info string"
+else
+  pass "detects indented closing fence with info string"
+fi
+
+# Test 17: --fix handles indented fences, preserves indentation
+printf '1. List item
+
+   ```
+   code
+   ```
+' > indented-bare.md
+git add indented-bare.md
+sh "$SCRIPT_DIR/check-markdown-fences-parity.sh" --fix indented-bare.md >/dev/null 2>&1
+first_fence=$(awk 'FNR==3{print}' indented-bare.md)
+if [ "$first_fence" = '   ```text' ]; then
+  pass "--fix preserves indentation on bare opening fences"
+else
+  fail "--fix should preserve indent, got: '$first_fence'"
+fi
+
 # ─────────────────────────────────────────────────────────
 echo ""
 echo "--- block-home-paths-commit-msg.sh ---"
