@@ -13,6 +13,10 @@
 - `.lefthook/pre-commit/README.md` — hook reference and usage patterns
 - 7 new tests (27 total)
 
+### Fixed
+
+- `block-shared-imports` default `BLOCKED_IMPORT_PATTERN` had POSIX sh quoting error — syntax error on source
+
 ## v0.1.0 (2026-05-10)
 
 ### Fixed
