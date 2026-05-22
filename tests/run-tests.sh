@@ -359,6 +359,97 @@ fi
 
 # ─────────────────────────────────────────────────────────
 echo ""
+echo "--- block-mdt-incomplete-tasks.sh ---"
+# ─────────────────────────────────────────────────────────
+
+# We test the core logic by mocking mdt-cli via PATH override
+MDT_TEST_DIR=$(mktemp -d)
+trap 'rm -rf "$MDT_TEST_DIR"' EXIT
+
+# Create a mock mdt-cli that returns --json output
+cat > "$MDT_TEST_DIR/mdt-cli" << 'MOCK'
+#!/bin/sh
+if [ "$1" = "project" ] && [ "$2" = "current" ] && echo "$@" | grep -q -- '--json'; then
+  cat <<EOF
+{"schemaVersion":1,"ok":true,"data":{"project":{"paths":{"root":"$MOCK_TEST_ROOT"},"ticketsPath":"tickets"}}}
+EOF
+elif [ "$1" = "ticket" ] && [ "$2" = "get" ] && echo "$@" | grep -q -- '--json'; then
+  key="$3"
+  if [ "$key" = "TST-999" ]; then
+    status="Implemented"
+  else
+    status="In Progress"
+  fi
+  printf '{"schemaVersion":1,"ok":true,"data":{"ticket":{"key":"%s","status":{"value":"%s"}}}}\n' "$key" "$status"
+fi
+MOCK
+chmod +x "$MDT_TEST_DIR/mdt-cli"
+
+export MOCK_TEST_ROOT="$TEST_DIR"
+mkdir -p "$TEST_DIR/tickets"
+
+# Test: blocks ticket file with [ ] when status is Implemented
+printf '# Title\n- [x] Done task\n- [ ] Not done task\n' > "$TEST_DIR/tickets/TST-999-incomplete.md"
+git add tickets/TST-999-incomplete.md
+PATH="$MDT_TEST_DIR:$PATH" sh "$SCRIPT_DIR/block-mdt-incomplete-tasks.sh" tickets/TST-999-incomplete.md >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+  pass "blocks ticket file with [ ] when status is Implemented"
+else
+  fail "should block ticket file with [ ] when status is Implemented"
+fi
+
+# Test: allows ticket file with all [x] when status is Implemented
+printf '# Title\n- [x] Done task\n- [x] Another done task\n' > "$TEST_DIR/tickets/TST-999-complete.md"
+git add tickets/TST-999-complete.md
+PATH="$MDT_TEST_DIR:$PATH" sh "$SCRIPT_DIR/block-mdt-incomplete-tasks.sh" tickets/TST-999-complete.md >/dev/null 2>&1
+if [ $? -eq 0 ]; then
+  pass "allows ticket file with all [x] when status is Implemented"
+else
+  fail "should allow ticket file with all [x] when status is Implemented"
+fi
+
+# Test: allows ticket file with [ ] when status is NOT Implemented
+printf '# Title\n- [x] Done task\n- [ ] Not done task\n' > "$TEST_DIR/tickets/TST-888-incomplete.md"
+git add tickets/TST-888-incomplete.md
+PATH="$MDT_TEST_DIR:$PATH" sh "$SCRIPT_DIR/block-mdt-incomplete-tasks.sh" tickets/TST-888-incomplete.md >/dev/null 2>&1
+if [ $? -eq 0 ]; then
+  pass "allows ticket file with [ ] when status is In Progress"
+else
+  fail "should allow ticket file with [ ] when status is In Progress"
+fi
+
+# Test: skips files outside tickets directory
+echo '- [ ] unchecked' > regular-notes.md
+git add regular-notes.md
+PATH="$MDT_TEST_DIR:$PATH" sh "$SCRIPT_DIR/block-mdt-incomplete-tasks.sh" regular-notes.md >/dev/null 2>&1
+if [ $? -eq 0 ]; then
+  pass "skips files outside tickets directory"
+else
+  fail "should skip files outside tickets directory"
+fi
+
+# Test: handles no arguments gracefully
+if PATH="$MDT_TEST_DIR:$PATH" sh "$SCRIPT_DIR/block-mdt-incomplete-tasks.sh" >/dev/null 2>&1; then
+  pass "handles no arguments gracefully"
+else
+  fail "should handle no arguments gracefully"
+fi
+
+# Test: blocks ticket subdirectory file (PROJ-NNN/tasks.md) with [ ] when Implemented
+mkdir -p "$TEST_DIR/tickets/TST-999"
+printf '# Title\n- [ ] unchecked\n' > "$TEST_DIR/tickets/TST-999/tasks.md"
+git add tickets/TST-999/tasks.md
+PATH="$MDT_TEST_DIR:$PATH" sh "$SCRIPT_DIR/block-mdt-incomplete-tasks.sh" tickets/TST-999/tasks.md >/dev/null 2>&1
+if [ $? -ne 0 ]; then
+  pass "blocks PROJ-NNN/tasks.md with [ ] when Implemented"
+else
+  fail "should block PROJ-NNN/tasks.md with [ ] when Implemented"
+fi
+
+rm -rf "$MDT_TEST_DIR"
+
+# ─────────────────────────────────────────────────────────
+echo ""
 echo "=== Results ==="
 echo "  Passed: $PASS"
 echo "  Failed: $FAIL"

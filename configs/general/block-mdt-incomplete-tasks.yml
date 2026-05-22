@@ -1,0 +1,14 @@
+# Block commits to MDT ticket .md files with unchecked tasks when ticket is Implemented
+# P1 — process hygiene
+#
+# Prevents committing incomplete checklists [ ] to tickets already marked Implemented.
+# All tasks should be checked off [x] before a ticket reaches Implemented status.
+#
+# Requires: mdt-cli installed globally
+# Only triggers on files matching MDT-NNN*.md pattern.
+
+pre-commit:
+  scripts:
+    "block-mdt-incomplete-tasks.sh":
+      runner: sh
+      glob: "*MDT-*.md"
