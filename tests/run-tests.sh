@@ -40,58 +40,71 @@ echo "--- block-generated-files.sh ---"
 # Test 1: blocks *.trace.md by default
 echo "content" > test.trace.md
 git add test.trace.md
-if sh "$SCRIPT_DIR/block-generated-files.sh" test.trace.md >/dev/null 2>&1; then
+if sh "$SCRIPT_DIR/block-generated-files.sh" >/dev/null 2>&1; then
   fail "should block *.trace.md"
 else
   pass "blocks *.trace.md"
 fi
 
+# Commit so staging is clean for next test
+git commit -m "trace" -q
+
 # Test 2: blocks .DS_Store by default
 echo "" > .DS_Store
 git add .DS_Store
-if sh "$SCRIPT_DIR/block-generated-files.sh" .DS_Store >/dev/null 2>&1; then
+if sh "$SCRIPT_DIR/block-generated-files.sh" >/dev/null 2>&1; then
   fail "should block .DS_Store"
 else
   pass "blocks .DS_Store"
 fi
 
+git commit -m "dsstore" -q
+
 # Test 3: blocks *.min.js by default
 echo "var x=1;" > app.min.js
 git add app.min.js
-if sh "$SCRIPT_DIR/block-generated-files.sh" app.min.js >/dev/null 2>&1; then
+if sh "$SCRIPT_DIR/block-generated-files.sh" >/dev/null 2>&1; then
   fail "should block *.min.js"
 else
   pass "blocks *.min.js"
 fi
 
+git commit -m "minjs" -q
+
 # Test 4: allows clean files
 echo "console.log('hello')" > index.js
 git add index.js
-if sh "$SCRIPT_DIR/block-generated-files.sh" index.js >/dev/null 2>&1; then
+if sh "$SCRIPT_DIR/block-generated-files.sh" >/dev/null 2>&1; then
   pass "allows clean .js file"
 else
   fail "should allow clean .js file"
 fi
 
+git commit -m "clean" -q
+
 # Test 5: custom BLOCK_PATTERNS
 echo "data" > custom.artifact
 git add custom.artifact
-BLOCK_PATTERNS="*.artifact" sh "$SCRIPT_DIR/block-generated-files.sh" custom.artifact >/dev/null 2>&1
+BLOCK_PATTERNS="*.artifact" sh "$SCRIPT_DIR/block-generated-files.sh" >/dev/null 2>&1
 if [ $? -eq 0 ]; then
   fail "should block custom pattern *.artifact"
 else
   pass "blocks custom BLOCK_PATTERNS"
 fi
 
+git commit -m "artifact" -q
+
 # Test 6: custom BLOCK_PATTERNS allows non-matching
 echo "ok" > good.txt
 git add good.txt
-BLOCK_PATTERNS="*.artifact" sh "$SCRIPT_DIR/block-generated-files.sh" good.txt >/dev/null 2>&1
+BLOCK_PATTERNS="*.artifact" sh "$SCRIPT_DIR/block-generated-files.sh" >/dev/null 2>&1
 if [ $? -eq 0 ]; then
   pass "allows file not matching custom BLOCK_PATTERNS"
 else
   fail "should allow file not matching custom BLOCK_PATTERNS"
 fi
+
+git commit -m "good" -q
 
 # ─────────────────────────────────────────────────────────
 echo ""

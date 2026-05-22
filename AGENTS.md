@@ -59,22 +59,9 @@ pre-commit:
 
 Two patterns — choose based on what the script needs:
 
-**Option D (default):** Lefthook passes staged files as args automatically. Use `$@` in the script.
+**Option C (always for `scripts:`):** Script calls `git diff --cached` itself. Lefthook's `scripts:` mechanism does **not** pass staged files as arguments.
 ```yaml
-# YAML — no {staged_files} needed, lefthook passes files as args to scripts
-pre-commit:
-  scripts:
-    "block-generated-files.sh":
-      runner: sh
-```
-```sh
-# Script
-for file in "$@"; do ...
-```
-
-**Option C:** Script calls `git diff --cached` itself. Use only when you need diff content (line numbers, added/removed lines).
-```yaml
-# YAML — no args passed, script reads git diff directly
+# YAML — no args passed to scripts, script reads git diff directly
 pre-commit:
   scripts:
     "block-home-paths-code.sh":
@@ -83,6 +70,20 @@ pre-commit:
 ```sh
 # Script
 staged_files=$(git diff --cached --name-only --diff-filter=ACM | grep -v '\.husky/' || true)
+for file in $staged_files; do ...
+```
+
+**Option D (only for `commands:` / `run:`):** Lefthook passes staged files via `{staged_files}` template. Use `$@` in the script.
+```yaml
+# YAML — {staged_files} expanded by lefthook in run: commands
+pre-commit:
+  commands:
+    block-generated:
+      run: sh scripts/block-generated-files.sh {staged_files}
+```
+```sh
+# Script
+for file in "$@"; do ...
 ```
 
 ### How env vars configure hooks

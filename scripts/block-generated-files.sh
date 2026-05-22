@@ -4,14 +4,15 @@
 # Configurable via BLOCK_PATTERNS env var (comma-separated glob patterns).
 # Default: common build/tool artifacts + OS metadata.
 #
-# Receives staged files as arguments ($@) — lefthook resolves {staged_files}
-# in the YAML run: directive and passes them as args.
+# Reads staged files from git index (lefthook scripts: passes no args).
 
 block_generated_files() {
   patterns="${BLOCK_PATTERNS:-*.trace.md,*.min.js,*.min.css,*.generated.ts,*.map,*.log,.DS_Store,Thumbs.db}"
 
+  staged_files=$(git diff --cached --name-only --diff-filter=ACM || true)
+
   violations=0
-  for file in "$@"; do
+  for file in $staged_files; do
     for pattern in $(echo "$patterns" | tr ',' '\n'); do
       case "$file" in
         *$pattern*)
@@ -34,4 +35,4 @@ block_generated_files() {
   return 0
 }
 
-block_generated_files "$@"
+block_generated_files
