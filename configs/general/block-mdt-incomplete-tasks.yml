@@ -11,4 +11,3 @@ pre-commit:
   scripts:
     "block-mdt-incomplete-tasks.sh":
       runner: sh
-      glob: "**/*MDT-*.md"
