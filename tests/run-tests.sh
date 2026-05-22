@@ -388,58 +388,71 @@ chmod +x "$MDT_TEST_DIR/mdt-cli"
 export MOCK_TEST_ROOT="$TEST_DIR"
 mkdir -p "$TEST_DIR/tickets"
 
+# Commit initial state so staging area is clean
+git add -A && git commit -m "init" -q
+
 # Test: blocks ticket file with [ ] when status is Implemented
 printf '# Title\n- [x] Done task\n- [ ] Not done task\n' > "$TEST_DIR/tickets/TST-999-incomplete.md"
 git add tickets/TST-999-incomplete.md
-PATH="$MDT_TEST_DIR:$PATH" sh "$SCRIPT_DIR/block-mdt-incomplete-tasks.sh" tickets/TST-999-incomplete.md >/dev/null 2>&1
+PATH="$MDT_TEST_DIR:$PATH" sh "$SCRIPT_DIR/block-mdt-incomplete-tasks.sh" >/dev/null 2>&1
 if [ $? -ne 0 ]; then
   pass "blocks ticket file with [ ] when status is Implemented"
 else
   fail "should block ticket file with [ ] when status is Implemented"
 fi
 
+# Commit so it's no longer staged
+git commit -m "incomplete" -q
+
 # Test: allows ticket file with all [x] when status is Implemented
 printf '# Title\n- [x] Done task\n- [x] Another done task\n' > "$TEST_DIR/tickets/TST-999-complete.md"
 git add tickets/TST-999-complete.md
-PATH="$MDT_TEST_DIR:$PATH" sh "$SCRIPT_DIR/block-mdt-incomplete-tasks.sh" tickets/TST-999-complete.md >/dev/null 2>&1
+PATH="$MDT_TEST_DIR:$PATH" sh "$SCRIPT_DIR/block-mdt-incomplete-tasks.sh" >/dev/null 2>&1
 if [ $? -eq 0 ]; then
   pass "allows ticket file with all [x] when status is Implemented"
 else
   fail "should allow ticket file with all [x] when status is Implemented"
 fi
 
+git commit -m "complete" -q
+
 # Test: allows ticket file with [ ] when status is NOT Implemented
 printf '# Title\n- [x] Done task\n- [ ] Not done task\n' > "$TEST_DIR/tickets/TST-888-incomplete.md"
 git add tickets/TST-888-incomplete.md
-PATH="$MDT_TEST_DIR:$PATH" sh "$SCRIPT_DIR/block-mdt-incomplete-tasks.sh" tickets/TST-888-incomplete.md >/dev/null 2>&1
+PATH="$MDT_TEST_DIR:$PATH" sh "$SCRIPT_DIR/block-mdt-incomplete-tasks.sh" >/dev/null 2>&1
 if [ $? -eq 0 ]; then
   pass "allows ticket file with [ ] when status is In Progress"
 else
   fail "should allow ticket file with [ ] when status is In Progress"
 fi
 
+git commit -m "in progress" -q
+
 # Test: skips files outside tickets directory
 echo '- [ ] unchecked' > regular-notes.md
 git add regular-notes.md
-PATH="$MDT_TEST_DIR:$PATH" sh "$SCRIPT_DIR/block-mdt-incomplete-tasks.sh" regular-notes.md >/dev/null 2>&1
+PATH="$MDT_TEST_DIR:$PATH" sh "$SCRIPT_DIR/block-mdt-incomplete-tasks.sh" >/dev/null 2>&1
 if [ $? -eq 0 ]; then
   pass "skips files outside tickets directory"
 else
   fail "should skip files outside tickets directory"
 fi
 
-# Test: handles no arguments gracefully
-if PATH="$MDT_TEST_DIR:$PATH" sh "$SCRIPT_DIR/block-mdt-incomplete-tasks.sh" >/dev/null 2>&1; then
-  pass "handles no arguments gracefully"
+git commit -m "regular" -q
+
+# Test: handles no staged .md files gracefully
+PATH="$MDT_TEST_DIR:$PATH" sh "$SCRIPT_DIR/block-mdt-incomplete-tasks.sh" >/dev/null 2>&1
+if [ $? -eq 0 ]; then
+  pass "handles no staged .md files gracefully"
 else
-  fail "should handle no arguments gracefully"
+  fail "should handle no staged .md files gracefully"
 fi
 
 # Test: blocks ticket subdirectory file (PROJ-NNN/tasks.md) with [ ] when Implemented
 mkdir -p "$TEST_DIR/tickets/TST-999"
 printf '# Title\n- [ ] unchecked\n' > "$TEST_DIR/tickets/TST-999/tasks.md"
 git add tickets/TST-999/tasks.md
-PATH="$MDT_TEST_DIR:$PATH" sh "$SCRIPT_DIR/block-mdt-incomplete-tasks.sh" tickets/TST-999/tasks.md >/dev/null 2>&1
+PATH="$MDT_TEST_DIR:$PATH" sh "$SCRIPT_DIR/block-mdt-incomplete-tasks.sh" >/dev/null 2>&1
 if [ $? -ne 0 ]; then
   pass "blocks PROJ-NNN/tasks.md with [ ] when Implemented"
 else

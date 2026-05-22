@@ -7,13 +7,10 @@
 #
 # Requires: mdt-cli, python3 (for JSON parsing)
 # Skips gracefully if no MDT project is found or no .md files are staged.
+#
+# Reads staged .md files from git index (Option C — no args from lefthook).
 
 block_mdt_incomplete_tasks() {
-  # Guard: early return if nothing to check
-  if [ -z "$1" ]; then
-    return 0
-  fi
-
   # Guard: check mdt-cli is available
   if ! command -v mdt-cli >/dev/null 2>&1; then
     echo "❌ ERROR: mdt-cli not found"
@@ -22,6 +19,13 @@ block_mdt_incomplete_tasks() {
     echo "   Install: npm install -g mdt-cli"
     echo "   Or skip this hook with: LEFTHOOK=0 git commit ..."
     return 1
+  fi
+
+  # Get staged .md files from git index
+  staged_files=$(git diff --cached --name-only --diff-filter=ACM | grep '\.md$' || true)
+
+  if [ -z "$staged_files" ]; then
+    return 0
   fi
 
   # Resolve project context via --json
@@ -37,13 +41,7 @@ block_mdt_incomplete_tasks() {
   tickets_root="$project_path/$tickets_path"
   violations=0
 
-  for file in "$@"; do
-    # Only process .md files
-    case "$file" in
-      *.md) ;;
-      *) continue ;;
-    esac
-
+  for file in $staged_files; do
     # Resolve to absolute path
     file_abs=""
     if [ -f "$file" ]; then
@@ -112,4 +110,4 @@ block_mdt_incomplete_tasks() {
   return 0
 }
 
-block_mdt_incomplete_tasks "$@"
+block_mdt_incomplete_tasks
