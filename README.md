@@ -59,6 +59,7 @@ See [docs/eslint-import-alias.md](docs/eslint-import-alias.md) for ESLint import
 | `block-home-paths-commit-msg` | P1 | Absolute paths in commit messages | None |
 | `block-generated-files` | P1 | Build artifacts, minified files, source maps, OS metadata | None |
 | `block-co-authored-by` | P1 | `Co-Authored-By` lines in commit messages | None |
+| `block-mdt-incomplete-tasks` | P1 | Unchecked `[ ]` tasks in [markdown-ticket](https://github.com/andkirby/markdown-ticket) files when ticket status is Implemented | `mdt-cli`, `python3` |
 
 ### TypeScript / Node
 
