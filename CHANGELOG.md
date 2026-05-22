@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.3.0 (2026-05-22)
+
+### Added
+
+- `block-mdt-incomplete-tasks` — blocks commits to [markdown-ticket](https://github.com/andkirby/markdown-ticket) `.md` files containing unchecked tasks `[ ]` when the ticket status is Implemented. Supports any project code (MDT, HOOK, API, etc.) and both file layouts (`PROJ-NNN-slug.md` and `PROJ-NNN/subdocument.md`). Requires `mdt-cli` and `python3`.
+- 6 new tests (33 total)
+
 ## v0.2.0 (2026-05-16)
 
 ### Added
