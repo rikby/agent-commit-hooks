@@ -1,0 +1,14 @@
+{
+  "version": "0.1.0",
+  "name": "wireloom-validate",
+  "description": "Codex Stop hook that validates Wireloom markdown blocks touched by the current session",
+  "author": {
+    "name": "agent-commit-hooks"
+  },
+  "keywords": [
+    "codex",
+    "hooks",
+    "wireloom",
+    "validation"
+  ]
+}

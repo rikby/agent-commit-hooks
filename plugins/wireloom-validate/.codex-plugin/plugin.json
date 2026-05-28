@@ -1,0 +1,20 @@
+{
+  "name": "wireloom-validate",
+  "version": "0.1.0",
+  "description": "Validate Wireloom markdown blocks when Codex stops.",
+  "author": {
+    "name": "agent-commit-hooks"
+  },
+  "interface": {
+    "displayName": "Wireloom Validate",
+    "shortDescription": "Validate changed Wireloom markdown blocks on Stop.",
+    "longDescription": "Adds a Codex Stop hook that checks changed markdown files for ```wireloom blocks, validates them with the configured Wireloom parser, blocks once with structured feedback, and then allows a later stop attempt to avoid loops.",
+    "developerName": "agent-commit-hooks",
+    "category": "Productivity",
+    "capabilities": [
+      "Hooks",
+      "Validation"
+    ],
+    "defaultPrompt": "Validate Wireloom markdown blocks before stopping."
+  }
+}

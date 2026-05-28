@@ -1,0 +1,29 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "^(Bash|apply_patch)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"${PLUGIN_ROOT}/scripts/wireloom-track-hook.sh\"",
+            "timeout": 5,
+            "statusMessage": "Tracking markdown files for Wireloom validation"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"${PLUGIN_ROOT}/scripts/wireloom-stop-hook.sh\"",
+            "timeout": 10,
+            "statusMessage": "Validating Wireloom blocks"
+          }
+        ]
+      }
+    ]
+  }
+}

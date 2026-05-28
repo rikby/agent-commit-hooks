@@ -1,0 +1,20 @@
+{
+  "name": "block-no-verify",
+  "version": "0.1.0",
+  "description": "Block Codex attempts to bypass git hooks.",
+  "author": {
+    "name": "agent-commit-hooks"
+  },
+  "interface": {
+    "displayName": "Block No Verify",
+    "shortDescription": "Prevent --no-verify and hook bypass commands.",
+    "longDescription": "Adds a Codex PreToolUse hook that blocks commands and GitHub write tools which attempt to bypass local git hooks, including git commit --no-verify, git commit -n, core.hooksPath overrides, and GitHub MCP write operations.",
+    "developerName": "agent-commit-hooks",
+    "category": "Productivity",
+    "capabilities": [
+      "Hooks",
+      "Git safety"
+    ],
+    "defaultPrompt": "Block attempts to bypass local git hooks."
+  }
+}

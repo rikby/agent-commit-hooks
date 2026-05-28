@@ -23,7 +23,7 @@ block_home_paths_commit_msg() {
   COMMIT_MSG=$(cat "$commit_msg_file")
 
   # Pattern for absolute home paths (macOS/Linux)
-  HOME_PATH_PATTERN='/(Users|home)/[a-zA-Z0-9_-]+/'
+  HOME_PATH_PATTERN='(^|[^A-Za-z0-9_$])/(Users|home)/[a-zA-Z0-9_-]+/'
 
   # Check for home paths in commit message
   # Skip example placeholders and common documentation terms

@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "^(Bash|apply_patch|mcp__github__.*)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"${PLUGIN_ROOT}/scripts/block-no-verify-hook.sh\"",
+            "timeout": 5,
+            "statusMessage": "Checking for git hook bypass"
+          }
+        ]
+      }
+    ]
+  }
+}

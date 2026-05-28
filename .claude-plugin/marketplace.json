@@ -1,0 +1,32 @@
+{
+  "name": "agent-commit-hooks",
+  "owner": {
+    "name": "agent-commit-hooks"
+  },
+  "plugins": [
+    {
+      "name": "wireloom-validate",
+      "source": "./plugins/wireloom-validate",
+      "description": "Codex Stop hook that validates Wireloom markdown blocks touched by the current session",
+      "version": "0.1.0",
+      "keywords": [
+        "codex",
+        "hooks",
+        "wireloom",
+        "validation"
+      ]
+    },
+    {
+      "name": "block-no-verify",
+      "source": "./plugins/block-no-verify",
+      "description": "Codex PreToolUse hook that blocks attempts to bypass local git hooks",
+      "version": "0.1.0",
+      "keywords": [
+        "codex",
+        "hooks",
+        "git",
+        "safety"
+      ]
+    }
+  ]
+}

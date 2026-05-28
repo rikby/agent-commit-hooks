@@ -44,7 +44,7 @@ bun add -D @evilmartians/lefthook
 Other options: `brew install lefthook`, `npm install -D @evilmartians/lefthook`, or see
 [lefthook guides](https://github.com/evilmartians/lefthook#guides) for more.
 
-See [INSTALL.md](INSTALL.md) for full setup. **⚠️ Blocking `--no-verify` for AI agents is mandatory** — see INSTALL.md §4.
+See [INSTALL.md](INSTALL.md) for full setup. **⚠️ Blocking `--no-verify` for AI agents is mandatory** — Codex can install the [block-no-verify plugin](plugins/block-no-verify/README.md).
 See [docs/eslint-import-alias.md](docs/eslint-import-alias.md) for ESLint import alias plugin setup.
 
 ## Available Hooks
@@ -59,15 +59,14 @@ See [docs/eslint-import-alias.md](docs/eslint-import-alias.md) for ESLint import
 | `block-home-paths-commit-msg` | P1 | Absolute paths in commit messages | None |
 | `block-generated-files` | P1 | Build artifacts, minified files, source maps, OS metadata | None |
 | `block-co-authored-by` | P1 | `Co-Authored-By` lines in commit messages | None |
-| `block-mdt-incomplete-tasks` | P1 | Unchecked `[ ]` tasks in [markdown-ticket](https://github.com/andkirby/markdown-ticket) files when ticket status is Implemented | `mdt-cli`, `python3` |
+| `check-markdown-fences-parity` | P1 | Detects unclosed fences, closing fences with info strings, bare opening fences; autofix with `--fix` / `--fix-staged` | None |
+| `check-markdown-fences-style` | P1 | Runs `markdownlint-cli2` for MD031/040/046/048 | `markdownlint-cli2` |
 | `check-wireloom-blocks` | P1 | Validates staged markdown `wireloom` fenced blocks | `node` or `bun`, Wireloom parser path |
 
 ### TypeScript / Node
 
 | Hook | Priority | What it does | Dependencies |
 |---|---|---|---|
-| `check-markdown-fences-parity` | P1 | Detects unclosed fences, closing fences with info strings, bare opening fences; autofix with `--fix` / `--fix-staged` | None |
-| `check-markdown-fences-style` | P1 | Runs `markdownlint-cli2` for MD031/040/046/048 | `markdownlint-cli2` |
 | `run-knip` | P1 | Dead code detection | `knip` |
 | `run-eslint-staged` | P1 | Lints staged `.ts`/`.tsx` files, auto-fixes ([import alias plugin](docs/eslint-import-alias.md)) | `eslint` |
 
@@ -76,6 +75,7 @@ See [docs/eslint-import-alias.md](docs/eslint-import-alias.md) for ESLint import
 | Hook | Category | What it does | Dependencies |
 |---|---|---|---|
 | `block-shared-imports` | monorepo | Blocks relative `../shared/` imports, enforces path aliases | None |
+| `block-mdt-incomplete-tasks` | mdt | Unchecked `[ ]` tasks in [markdown-ticket](https://github.com/andkirby/markdown-ticket) files when ticket status is Implemented | `mdt-cli`, `python3` |
 
 ## Configuration
 

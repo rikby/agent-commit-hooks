@@ -1,0 +1,20 @@
+min_version: 1.13.0
+
+remotes:
+  - git_url: https://github.com/rikby/agent-commit-hooks.git
+    configs:
+      # General — every project
+      - configs/general/block-env-files.yml
+      - configs/general/block-credential-files.yml
+      - configs/general/block-home-paths-code.yml
+      - configs/general/block-home-paths-commit-msg.yml
+      - configs/general/block-generated-files.yml
+      - configs/general/block-co-authored-by.yml
+      - configs/general/check-markdown-fences.yml
+      # TypeScript / Node
+      - configs/typescript/run-knip.yml
+      - configs/typescript/run-eslint-staged.yml
+      # MDT ticket manager
+      - configs/mdt/block-mdt-incomplete-tasks.yml
+      # Monorepo
+      - configs/monorepo/block-shared-imports.yml

@@ -28,10 +28,13 @@ remotes:
       - configs/general/block-home-paths-commit-msg.yml
       - configs/general/block-generated-files.yml
       - configs/general/block-co-authored-by.yml
+      # Markdown
+      - configs/general/check-markdown-fences.yml
       # TypeScript projects
-      - configs/typescript/check-markdown-fences.yml
       - configs/typescript/run-knip.yml
       - configs/typescript/run-eslint-staged.yml
+      # MDT (optional)
+      # - configs/mdt/block-mdt-incomplete-tasks.yml
       # Monorepo (optional)
       # - configs/monorepo/block-shared-imports.yml
 ```
@@ -80,32 +83,19 @@ Create `.claude/settings.json`:
 
 ### Codex CLI
 
-Enable hooks in `~/.codex/config.toml` or `.codex/config.toml`:
+Add this repository as a local Codex plugin marketplace:
 
-```toml
-[features]
-codex_hooks = true
+```sh
+codex plugin marketplace add /path/to/agent-commit-hooks
 ```
 
-Create `.codex/hooks.json`:
+Then install the plugin:
 
-```json
-{
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bunx block-no-verify"
-          }
-        ]
-      }
-    ]
-  }
-}
+```sh
+codex plugin add block-no-verify@agent-commit-hooks
 ```
+
+Codex may ask you to review/trust the hook before it runs.
 
 ### OpenCode
 
@@ -158,16 +148,8 @@ Create `.cursor/hooks.json`:
 | `git cherry-pick --no-verify` | Yes |
 | `git rebase --no-verify` | Yes |
 | `git am --no-verify` | Yes |
-| `git config core.hooksPath /dev/null` | No — not covered |
+| `git config core.hooksPath /dev/null` | Yes |
 | `git stash && git commit` | No — not covered |
-
-For `core.hooksPath` poisoning, add a `post-checkout` hook that resets it:
-
-```sh
-# .git/hooks/post-checkout (or via lefthook)
-#!/bin/sh
-git config core.hooksPath .git/hooks
-```
 
 ## 5. Verify
 

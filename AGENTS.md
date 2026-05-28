@@ -17,9 +17,10 @@ Consuming projects pick configs in their `lefthook.yml`, run `lefthook install`,
 
 ```
 configs/
-  general/          # 6 hooks — every project
-  typescript/       # 3 hooks — TS/Node projects
+  general/          # 7 hooks — every project
+  typescript/       # 2 hooks — TS/Node projects
   monorepo/         # 1 hook  — multi-package TS
+  mdt/              # 1 hook  — MDT ticket manager
 .lefthook/
   pre-commit/       # pre-commit hook scripts
   commit-msg/       # commit-msg hook scripts
@@ -195,6 +196,7 @@ block_something "$@"
 | `general/` | Every project | Secrets, hygiene, universal checks |
 | `typescript/` | TS/Node | Needs `node`, `npx`, `.ts` files |
 | `monorepo/` | Multi-package | Cross-package import rules |
+| `mdt/` | MDT projects | Markdown ticket manager checks |
 
 ### Step 2: Decide inline vs script
 

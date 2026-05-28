@@ -5,6 +5,8 @@
 ### Added
 
 - `check-wireloom-blocks` — validates staged markdown `wireloom` fenced blocks with configurable `WIRELOOM_INDEX_PATH` and `WIRELOOM_RUNTIME=auto|node|bun`.
+- `wireloom-validate` Codex plugin package and local marketplace entry for quick plugin installation.
+- `block-no-verify` Codex plugin package and local marketplace entry.
 
 ## v0.3.0 (2026-05-22)
 

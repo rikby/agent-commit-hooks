@@ -316,6 +316,106 @@ git commit -m "no wireloom" -q
 
 # ─────────────────────────────────────────────────────────
 echo ""
+echo "--- codex-wireloom-validate Stop hook ---"
+# ─────────────────────────────────────────────────────────
+
+CODEX_WIRELOOM_HOOK="$(dirname "$SCRIPT_DIR")/plugins/wireloom-validate/scripts/wireloom-stop-hook.sh"
+CODEX_WIRELOOM_TRACK_HOOK="$(dirname "$SCRIPT_DIR")/plugins/wireloom-validate/scripts/wireloom-track-hook.sh"
+CODEX_WIRELOOM_STATE_DIR="$TEST_DIR/.codex-wireloom-state"
+CODEX_WIRELOOM_SESSION="wireloom-test-session"
+
+track_codex_markdown() {
+  tracked_file="$1"
+  printf '{"cwd":"%s","session_id":"%s","hook_event_name":"PostToolUse","tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\\n*** Add File: %s\\n*** End Patch\\n"}}\n' "$TEST_DIR" "$CODEX_WIRELOOM_SESSION" "$tracked_file" | CODEX_WIRELOOM_STATE_DIR="$CODEX_WIRELOOM_STATE_DIR" WIRELOOM_RUNTIME=node sh "$CODEX_WIRELOOM_TRACK_HOOK" >/dev/null 2>&1
+}
+
+cat > "$TEST_DIR/codex-wireloom-parser.js" << 'MOCK'
+module.exports = {
+  parse(source) {
+    if (source.indexOf('INVALID_CODEX_WIRELOOM') !== -1) {
+      throw new Error('codex wireloom parse error');
+    }
+  }
+};
+MOCK
+
+# Test: Codex Stop hook blocks changed markdown with invalid wireloom
+printf '```wireloom\nINVALID_CODEX_WIRELOOM\n```\n' > codex-wireloom-bad.md
+git add codex-wireloom-bad.md
+track_codex_markdown "codex-wireloom-bad.md"
+codex_block_output=$(printf '{"cwd":"%s","session_id":"%s","hook_event_name":"Stop","stop_hook_active":false}\n' "$TEST_DIR" "$CODEX_WIRELOOM_SESSION" | CODEX_WIRELOOM_STATE_DIR="$CODEX_WIRELOOM_STATE_DIR" WIRELOOM_INDEX_PATH="$TEST_DIR/codex-wireloom-parser.js" WIRELOOM_RUNTIME=node sh "$CODEX_WIRELOOM_HOOK" 2>/dev/null)
+if printf '%s\n' "$codex_block_output" | grep -q '"decision":"block"' && printf '%s\n' "$codex_block_output" | grep -q 'codex wireloom parse error'; then
+  pass "Codex hook blocks invalid wireloom block"
+else
+  fail "Codex hook should block invalid wireloom block"
+fi
+
+# Test: Codex Stop hook allows second stop attempt to avoid loops
+track_codex_markdown "codex-wireloom-bad.md"
+passes=0
+blocks=0
+for attempt in 1 2 3 4 5 6 7 8 9 10; do
+  if [ "$attempt" -eq 1 ]; then
+    active=false
+  else
+    active=true
+  fi
+
+  loop_output=$(printf '{"cwd":"%s","session_id":"%s","hook_event_name":"Stop","stop_hook_active":%s}\n' "$TEST_DIR" "$CODEX_WIRELOOM_SESSION" "$active" | CODEX_WIRELOOM_STATE_DIR="$CODEX_WIRELOOM_STATE_DIR" WIRELOOM_INDEX_PATH="$TEST_DIR/codex-wireloom-parser.js" WIRELOOM_RUNTIME=node sh "$CODEX_WIRELOOM_HOOK" 2>/dev/null)
+  if printf '%s\n' "$loop_output" | grep -q '"decision":"block"'; then
+    blocks=$((blocks + 1))
+  else
+    passes=$((passes + 1))
+  fi
+done
+
+if [ "$blocks" -eq 1 ] && [ "$passes" -eq 9 ]; then
+  pass "Codex hook avoids Stop loop after first block"
+else
+  fail "Codex hook should block once and allow later stop attempts, got blocks=$blocks passes=$passes"
+fi
+
+git commit -m "codex wireloom bad" -q
+
+# Test: Codex Stop hook allows valid changed wireloom
+printf '```wireloom\nwindow "OK":\n  panel:\n    text "Hello"\n```\n' > codex-wireloom-good.md
+git add codex-wireloom-good.md
+track_codex_markdown "codex-wireloom-good.md"
+if printf '{"cwd":"%s","session_id":"%s","hook_event_name":"Stop"}\n' "$TEST_DIR" "$CODEX_WIRELOOM_SESSION" | CODEX_WIRELOOM_STATE_DIR="$CODEX_WIRELOOM_STATE_DIR" WIRELOOM_INDEX_PATH="$TEST_DIR/codex-wireloom-parser.js" WIRELOOM_RUNTIME=node sh "$CODEX_WIRELOOM_HOOK" >/dev/null 2>&1; then
+  pass "Codex hook allows valid wireloom block"
+else
+  fail "Codex hook should allow valid wireloom block"
+fi
+
+git commit -m "codex wireloom good" -q
+
+# Test: Codex Stop hook skips changed markdown without wireloom and no parser
+printf 'plain markdown\n' > codex-no-wireloom.md
+git add codex-no-wireloom.md
+track_codex_markdown "codex-no-wireloom.md"
+if printf '{"cwd":"%s","session_id":"%s","hook_event_name":"Stop"}\n' "$TEST_DIR" "$CODEX_WIRELOOM_SESSION" | CODEX_WIRELOOM_STATE_DIR="$CODEX_WIRELOOM_STATE_DIR" WIRELOOM_RUNTIME=node sh "$CODEX_WIRELOOM_HOOK" >/dev/null 2>&1; then
+  pass "Codex hook skips markdown without wireloom blocks"
+else
+  fail "Codex hook should skip markdown without wireloom blocks"
+fi
+
+git commit -m "codex no wireloom" -q
+
+# Test: Codex Stop hook requires parser when changed markdown has wireloom
+printf '```wireloom\nwindow "Needs parser":\n  panel:\n    text "Hello"\n```\n' > codex-wireloom-missing-parser.md
+git add codex-wireloom-missing-parser.md
+track_codex_markdown "codex-wireloom-missing-parser.md"
+missing_parser_output=$(printf '{"cwd":"%s","session_id":"%s","hook_event_name":"Stop","stop_hook_active":false}\n' "$TEST_DIR" "$CODEX_WIRELOOM_SESSION" | CODEX_WIRELOOM_STATE_DIR="$CODEX_WIRELOOM_STATE_DIR" WIRELOOM_RUNTIME=node sh "$CODEX_WIRELOOM_HOOK" 2>/dev/null)
+if printf '%s\n' "$missing_parser_output" | grep -q '"decision":"block"' && printf '%s\n' "$missing_parser_output" | grep -q 'Wireloom parser path is not configured'; then
+  pass "Codex hook hard-fails when WIRELOOM_INDEX_PATH is missing"
+else
+  fail "Codex hook should fail when WIRELOOM_INDEX_PATH is missing"
+fi
+
+git commit -m "codex missing parser" -q
+
+# ─────────────────────────────────────────────────────────
+echo ""
 echo "--- block-home-paths-commit-msg.sh ---"
 # ─────────────────────────────────────────────────────────
 
@@ -341,6 +441,14 @@ if sh "$SCRIPT_DIR/block-home-paths-commit-msg.sh" "$TEST_DIR/commit-msg-ex" >/d
   pass "allows 'username' placeholder in commit message"
 else
   fail "should allow 'username' placeholder"
+fi
+
+# Test 13b: allows HOME-expanded paths in commit messages
+echo 'docs: use $HOME/home/project/config' > "$TEST_DIR/commit-msg-home-env"
+if sh "$SCRIPT_DIR/block-home-paths-commit-msg.sh" "$TEST_DIR/commit-msg-home-env" >/dev/null 2>&1; then
+  pass "allows HOME-expanded path in commit message"
+else
+  fail "should allow HOME-expanded path in commit message"
 fi
 
 # Test 14: handles missing commit msg file gracefully
@@ -398,6 +506,19 @@ if sh "$SCRIPT_DIR/block-home-paths-code.sh" >/dev/null 2>&1; then
 else
   fail "should allow code without home paths"
 fi
+
+# Test 18b: allows shell-expanded HOME paths that are not literal absolute paths
+echo 'initial' > home_env_file.ts
+git add home_env_file.ts
+git commit -m "add home env path baseline" -q
+echo 'const p = "$HOME/home/project/config";' > home_env_file.ts
+git add home_env_file.ts
+if sh "$SCRIPT_DIR/block-home-paths-code.sh" >/dev/null 2>&1; then
+  pass "allows HOME-expanded path strings in staged code"
+else
+  fail "should allow HOME-expanded path strings"
+fi
+git commit -m "allow home env path" -q
 
 # ─────────────────────────────────────────────────────────
 echo ""

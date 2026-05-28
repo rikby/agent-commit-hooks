@@ -1,0 +1,14 @@
+{
+  "version": "0.1.0",
+  "name": "block-no-verify",
+  "description": "Codex PreToolUse hook that blocks attempts to bypass local git hooks",
+  "author": {
+    "name": "agent-commit-hooks"
+  },
+  "keywords": [
+    "codex",
+    "hooks",
+    "git",
+    "safety"
+  ]
+}

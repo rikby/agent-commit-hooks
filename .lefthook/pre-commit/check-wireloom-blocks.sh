@@ -154,7 +154,8 @@ for (const block of blocks) {
     console.log(`OK ${block.file} block ${block.number}`);
   } catch (error) {
     failed = true;
-    console.error(`❌ FAIL ${block.file} block ${block.number}: ${error.message}`);
+    console.error(`❌ FAIL ${block.file}`);
+    console.error(`block ${block.number}: ${error.message}`);
   }
 }
 

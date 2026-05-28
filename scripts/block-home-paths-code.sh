@@ -8,9 +8,9 @@
 #
 # Uses git diff --cached directly (Option C) because it needs line numbers.
 
-# Pattern for absolute home paths (macOS/Linux)
-# Exclude .husky directory and allow in comments
-HOME_PATH_PATTERN='/(Users|home)/[a-zA-Z0-9_-]+/'
+# Pattern for absolute home paths (macOS/Linux).
+# Requires a path boundary to avoid false positives like "$HOME/home/project".
+HOME_PATH_PATTERN='(^|[^A-Za-z0-9_$])/(Users|home)/[a-zA-Z0-9_-]+/'
 
 block_home_paths_code() {
   # Get list of staged files (excluding .husky and deleted files)
@@ -50,7 +50,7 @@ block_home_paths_code() {
         if (line ~ /[Ee][Xx][Aa][Mm][Pp][Ll][Ee]/) skip = 1
         if (line ~ /[Hh][Tt][Tt][Pp][Ss]?:/) skip = 1
 
-        if (!skip && line ~ /(Users|home)\/[a-zA-Z0-9_-]+\//) {
+        if (!skip && line ~ /(^|[^A-Za-z0-9_$])\/(Users|home)\/[a-zA-Z0-9_-]+\//) {
           printf "  %s:%d\n  │  %s\n", file_name, new_line, line
         }
         new_line++

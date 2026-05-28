@@ -7,4 +7,3 @@ pre-commit:
   scripts:
     "block-home-paths-code.sh":
       runner: sh
-      exclude: "^\\.husky/"
