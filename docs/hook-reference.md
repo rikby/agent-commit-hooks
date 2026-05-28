@@ -12,6 +12,7 @@ All hooks are configured as remote YAML configs in the `agent-commit-hooks` repo
 | `block-home-paths-code` | pre-commit | P0 | None | Blocks absolute `/Users/...`, `/home/...` paths in staged diffs |
 | `block-home-paths-commit-msg` | commit-msg | P1 | None | Blocks absolute home paths in commit messages |
 | `block-generated-files` | pre-commit | P1 | None | Blocks auto-generated artifacts (configurable via `BLOCK_PATTERNS`) |
+| `check-wireloom-blocks` | pre-commit | P1 | `node` or `bun`, Wireloom parser path | Validates markdown `wireloom` fenced blocks |
 
 ## TypeScript Hooks
 
@@ -54,6 +55,11 @@ All scripts live in `scripts/` and are referenced via the remote checkout path:
 ### `check-markdown-fences-style.sh`
 - **Receives**: Staged files as `$@` (lefthook `{staged_files}`)
 - **Hard-fails** if `markdownlint-cli2` not installed
+
+### `check-wireloom-blocks.sh`
+- **Configurable**: `WIRELOOM_INDEX_PATH`, `WIRELOOM_RUNTIME=auto|node|bun`
+- **Method**: Scans staged markdown files for `wireloom` fenced blocks and calls `parse(source)`
+- **Hard-fails** if a block exists but the parser path or runtime is missing
 
 ### `block-shared-imports.sh`
 - **Configurable**: `BLOCKED_IMPORT_PATTERN` (regex), `ALIAS` (suggested alias)

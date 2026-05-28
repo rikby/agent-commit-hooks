@@ -57,6 +57,8 @@ Each config can be customized via env vars in your `lefthook.yml`:
 |---|---|---|---|
 | `BLOCK_PATTERNS` | block-generated-files | `*.trace.md,*.min.js,...` | Comma-separated glob patterns to block |
 | `MD_SKIP_DIRS` | check-markdown-fences | `""` | Colon-separated dirs to skip for parity check |
+| `WIRELOOM_INDEX_PATH` | check-wireloom-blocks | `""` | Path to this project's Wireloom `dist/index.js` parser |
+| `WIRELOOM_RUNTIME` | check-wireloom-blocks | `auto` | Runtime for validation: `auto`, `node`, or `bun` |
 | `BLOCKED_IMPORT_PATTERN` | block-shared-imports | `from ['"](\.\./)+shared/` | Regex for disallowed imports |
 | `ALIAS` | block-shared-imports | `@mdt/shared` | Path alias to suggest |
 

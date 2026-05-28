@@ -9,6 +9,7 @@ YAML configs live in `configs/<category>/`.
 |--------|---------------|--------|
 | `check-markdown-fences-parity.sh` | Unclosed fences, closing fences with language tags, bare opening fences | `MD_SKIP_DIRS` env var |
 | `check-markdown-fences-style.sh` | MD031/MD040/MD046/MD048 via markdownlint-cli2 | — |
+| `check-wireloom-blocks.sh` | Wireloom fenced blocks in staged markdown files | `WIRELOOM_INDEX_PATH`, `WIRELOOM_RUNTIME` |
 | `block-generated-files.sh` | Staged files matching `BLOCK_PATTERNS` | `BLOCK_PATTERNS` env var |
 | `block-home-paths-code.sh` | Hardcoded home paths in staged code diffs | — |
 | `block-shared-imports.sh` | Cross-package imports in monorepo | — |

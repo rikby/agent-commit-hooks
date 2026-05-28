@@ -60,6 +60,7 @@ See [docs/eslint-import-alias.md](docs/eslint-import-alias.md) for ESLint import
 | `block-generated-files` | P1 | Build artifacts, minified files, source maps, OS metadata | None |
 | `block-co-authored-by` | P1 | `Co-Authored-By` lines in commit messages | None |
 | `block-mdt-incomplete-tasks` | P1 | Unchecked `[ ]` tasks in [markdown-ticket](https://github.com/andkirby/markdown-ticket) files when ticket status is Implemented | `mdt-cli`, `python3` |
+| `check-wireloom-blocks` | P1 | Validates staged markdown `wireloom` fenced blocks | `node` or `bun`, Wireloom parser path |
 
 ### TypeScript / Node
 
@@ -92,6 +93,11 @@ pre-commit:
       env:
         # Skip nested markdown directories
         MD_SKIP_DIRS: "prompts,templates"
+    "check-wireloom-blocks.sh":
+      env:
+        # Use the parser path for this project/environment
+        WIRELOOM_INDEX_PATH: "./node_modules/wireloom/dist/index.js"
+        WIRELOOM_RUNTIME: "auto" # auto, node, or bun
     "block-shared-imports.sh":
       env:
         BLOCKED_IMPORT_PATTERN: 'from ["\x27](\.\./)+shared/'

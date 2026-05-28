@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- `check-wireloom-blocks` — validates staged markdown `wireloom` fenced blocks with configurable `WIRELOOM_INDEX_PATH` and `WIRELOOM_RUNTIME=auto|node|bun`.
+
 ## v0.3.0 (2026-05-22)
 
 ### Added

@@ -257,6 +257,65 @@ fi
 
 # ─────────────────────────────────────────────────────────
 echo ""
+echo "--- check-wireloom-blocks.sh ---"
+# ─────────────────────────────────────────────────────────
+
+cat > "$TEST_DIR/wireloom-parser.js" << 'MOCK'
+module.exports = {
+  parse(source) {
+    if (source.indexOf('INVALID_WIRELOOM') !== -1) {
+      throw new Error('invalid wireloom syntax');
+    }
+  }
+};
+MOCK
+
+# Test: allows valid wireloom block with configured parser
+printf '```wireloom\nwindow "OK":\n  panel:\n    text "Hello"\n```\n' > wireloom-good.md
+git add wireloom-good.md
+if WIRELOOM_INDEX_PATH="$TEST_DIR/wireloom-parser.js" WIRELOOM_RUNTIME=node sh "$SCRIPT_DIR/check-wireloom-blocks.sh" >/dev/null 2>&1; then
+  pass "allows valid wireloom block"
+else
+  fail "should allow valid wireloom block"
+fi
+
+git commit -m "wireloom good" -q
+
+# Test: blocks invalid wireloom block
+printf '```wireloom\nINVALID_WIRELOOM\n```\n' > wireloom-bad.md
+git add wireloom-bad.md
+if WIRELOOM_INDEX_PATH="$TEST_DIR/wireloom-parser.js" WIRELOOM_RUNTIME=node sh "$SCRIPT_DIR/check-wireloom-blocks.sh" >/dev/null 2>&1; then
+  fail "should block invalid wireloom block"
+else
+  pass "blocks invalid wireloom block"
+fi
+
+git commit -m "wireloom bad" -q
+
+# Test: hard-fails when parser path is missing and block exists
+printf '```wireloom\nwindow "Needs parser":\n  panel:\n    text "Hello"\n```\n' > wireloom-missing-parser.md
+git add wireloom-missing-parser.md
+if WIRELOOM_RUNTIME=node sh "$SCRIPT_DIR/check-wireloom-blocks.sh" >/dev/null 2>&1; then
+  fail "should fail when WIRELOOM_INDEX_PATH is missing"
+else
+  pass "hard-fails when WIRELOOM_INDEX_PATH is missing"
+fi
+
+git commit -m "wireloom missing parser" -q
+
+# Test: skips markdown without wireloom blocks even if parser is not configured
+printf '```js\nconsole.log("not wireloom")\n```\n' > no-wireloom.md
+git add no-wireloom.md
+if WIRELOOM_RUNTIME=node sh "$SCRIPT_DIR/check-wireloom-blocks.sh" >/dev/null 2>&1; then
+  pass "skips markdown without wireloom blocks"
+else
+  fail "should skip markdown without wireloom blocks"
+fi
+
+git commit -m "no wireloom" -q
+
+# ─────────────────────────────────────────────────────────
+echo ""
 echo "--- block-home-paths-commit-msg.sh ---"
 # ─────────────────────────────────────────────────────────
 

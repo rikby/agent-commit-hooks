@@ -45,6 +45,18 @@ check_deps() {
     fi
   fi
 
+  # node or bun — required by configs/general/check-wireloom-blocks.yml
+  if echo "$yml_content" | grep -q "check-wireloom-blocks"; then
+    if command -v bun >/dev/null 2>&1 || command -v node >/dev/null 2>&1; then
+      echo "  ✅ node/bun                     (configs/general/check-wireloom-blocks.yml)"
+      found=$((found + 1))
+    else
+      echo "  ❌ node/bun                     (configs/general/check-wireloom-blocks.yml)"
+      echo "     Install Node or Bun, and configure WIRELOOM_INDEX_PATH"
+      missing=$((missing + 1))
+    fi
+  fi
+
   # knip — required by configs/typescript/run-knip.yml
   if echo "$yml_content" | grep -q "run-knip"; then
     if npx knip --help >/dev/null 2>&1; then

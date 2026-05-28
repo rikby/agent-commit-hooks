@@ -1,0 +1,19 @@
+# Validate markdown ```wireloom blocks with the Wireloom parser
+# P1 — requires node or bun, plus WIRELOOM_INDEX_PATH configured
+#
+# Configure WIRELOOM_INDEX_PATH in the consuming project's lefthook.yml:
+#   pre-commit:
+#     scripts:
+#       "check-wireloom-blocks.sh":
+#         env:
+#           WIRELOOM_INDEX_PATH: "./node_modules/wireloom/dist/index.js"
+#           WIRELOOM_RUNTIME: "auto"
+
+pre-commit:
+  scripts:
+    "check-wireloom-blocks.sh":
+      runner: sh
+      glob: "*.md"
+      env:
+        WIRELOOM_INDEX_PATH: ""
+        WIRELOOM_RUNTIME: "auto"
