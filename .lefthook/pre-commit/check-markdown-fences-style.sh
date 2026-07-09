@@ -6,6 +6,12 @@
 # in the YAML run: directive and passes them as args.
 
 check_markdown_fences_style() {
+  # lefthook runs this with `runner: sh` and does NOT add node_modules/.bin to
+  # PATH (unlike npm/yarn run). Prepend the project-local bin dir so a local
+  # markdownlint-cli2 install is found; matches the npm convention. Guarded so
+  # it's a no-op when there's no node_modules (e.g. test sandbox).
+  [ -d ./node_modules/.bin ] && PATH="./node_modules/.bin:$PATH"
+
   # Guard: hard-fail if markdownlint-cli2 is not installed
   if ! command -v markdownlint-cli2 >/dev/null 2>&1; then
     echo "❌ markdownlint-cli2 not found"
