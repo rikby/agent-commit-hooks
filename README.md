@@ -44,7 +44,7 @@ bun add -D @evilmartians/lefthook
 Other options: `brew install lefthook`, `npm install -D @evilmartians/lefthook`, or see
 [lefthook guides](https://github.com/evilmartians/lefthook#guides) for more.
 
-See [INSTALL.md](INSTALL.md) for full setup. **⚠️ Blocking `--no-verify` for AI agents is mandatory** — Codex can install the [block-no-verify plugin](plugins/block-no-verify/README.md).
+See [INSTALL.md](INSTALL.md) for full setup. **⚠️ Blocking `--no-verify` for AI agents is mandatory** — Codex and ZCode can install the [block-no-verify plugin](plugins/block-no-verify/README.md).
 See [docs/eslint-import-alias.md](docs/eslint-import-alias.md) for ESLint import alias plugin setup.
 
 ## Available Hooks

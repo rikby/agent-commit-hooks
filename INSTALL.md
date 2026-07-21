@@ -49,7 +49,7 @@ bunx lefthook install
 
 ## 4. Block `--no-verify` for AI agents
 
-AI coding agents (Claude Code, Codex, OpenCode, Pi) can bypass git hooks with `--no-verify`, `git config core.hooksPath /dev/null`, or `git stash` manipulation. This defeats pre-commit checks.
+AI coding agents (Claude Code, Codex, ZCode, OpenCode, Pi) can bypass git hooks with `--no-verify`, `git config core.hooksPath /dev/null`, or `git stash` manipulation. This defeats pre-commit checks.
 
 Install `block-no-verify` and configure it for every agent you use:
 
@@ -97,6 +97,21 @@ codex plugin add block-no-verify@agent-commit-hooks
 
 Codex may ask you to review/trust the hook before it runs.
 
+For plugins that need environment variables, set them in `~/.codex/config.toml`
+so Codex Desktop and CLI subprocesses receive the same values:
+
+```toml
+[shell_environment_policy]
+inherit = "core"
+
+[shell_environment_policy.set]
+WIRELOOM_INDEX_PATH = "/absolute/path/to/Wireloom/dist/index.js"
+WIRELOOM_RUNTIME = "auto"
+```
+
+Restart Codex after editing the config. Do not store secrets there; values are
+plain text.
+
 ### OpenCode
 
 Create `opencode.json`:
@@ -136,6 +151,33 @@ Create `.cursor/hooks.json`:
   }
 }
 ```
+
+### ZCode
+
+The `plugins/block-no-verify` folder ships a `.zcode-plugin/plugin.json`
+manifest, so ZCode discovers it directly. ZCode reads `.zcode-hooks.json`
+(not the Codex `hooks/hooks.json`) and expands `${CLAUDE_PLUGIN_ROOT}` to
+locate the runner script.
+
+**Install from a local clone:**
+
+1. **Settings → Plugin Management → Discover → `+`**
+2. Choose **local directory**
+3. Point at `plugins/block-no-verify` (e.g. `/Users/kirby/home/commithooks/plugins/block-no-verify`)
+4. Install
+
+The plugin installs and enables automatically. A plugin hook auto-enables
+the hook runner — no `hooks.enabled: true` needed.
+
+The ZCode matcher is `^(Bash|Write|Edit|mcp__github__.*)$`, broader than the
+Codex matcher so it also catches file-write attacks on `.git/hooks/*` and
+`.husky/*`. `Write|Edit` absorb `ApplyPatch` via ZCode's tool-name alias.
+
+> Marketplace-based distribution: the Codex-shaped `marketplace.json` at this
+> repo's root is **not** consumed by ZCode (ZCode uses source kinds
+> `directory`/`github`/`git`/`url`/`git-subdir`, not Codex's `"local"`). A
+> ZCode-shaped marketplace file is a follow-up; for now install via local
+> directory as above.
 
 ## What `block-no-verify` catches
 

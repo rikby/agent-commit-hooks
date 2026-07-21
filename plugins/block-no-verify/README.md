@@ -1,6 +1,6 @@
 # Block No Verify Plugin
 
-Codex plugin that blocks attempts to bypass local git hooks.
+Codex and ZCode plugin that blocks attempts to bypass local git hooks.
 
 It catches:
 
@@ -22,6 +22,32 @@ Then install:
 ```sh
 codex plugin add block-no-verify@agent-commit-hooks
 ```
+
+## ZCode
+
+This plugin is auto-detected by ZCode via `.zcode-plugin/plugin.json`. ZCode
+reads `.zcode-hooks.json` (not the Codex `hooks/hooks.json`) and uses
+`${CLAUDE_PLUGIN_ROOT}` to locate the runner script.
+
+### Install (local directory)
+
+In ZCode: **Settings → Plugin Management → Discover → `+`** → add as a
+**local directory**:
+
+```
+/Users/kirby/home/commithooks/plugins/block-no-verify
+```
+
+The plugin installs and enables automatically. The hook runner is enabled
+automatically when any plugin contributes a hook — no `hooks.enabled: true`
+needed.
+
+### ZCode matcher
+
+The ZCode hook matches `^(Bash|Write|Edit|mcp__github__.*)$` — broader than
+the Codex matcher, so it also catches file-write attacks on hook files
+(`.git/hooks/*`, `.husky/*`) in addition to `Bash` bypasses. `Write|Edit`
+absorb `ApplyPatch` via ZCode's tool-name alias.
 
 ## Runtime Dependency
 
