@@ -154,17 +154,19 @@ Create `.cursor/hooks.json`:
 
 ### ZCode
 
-The `plugins/block-no-verify` folder ships a `.zcode-plugin/plugin.json`
-manifest, so ZCode discovers it directly. ZCode reads `.zcode-hooks.json`
-(not the Codex `hooks/hooks.json`) and expands `${CLAUDE_PLUGIN_ROOT}` to
-locate the runner script.
+The `plugins/` directory ships a ZCode-shaped `marketplace.json` that lists
+`block-no-verify` (source `./block-no-verify`). The plugin folder itself
+carries `.zcode-plugin/plugin.json` and `.zcode-hooks.json`; ZCode reads the
+latter (not Codex's `hooks/hooks.json`) and expands `${CLAUDE_PLUGIN_ROOT}`
+to locate the runner script.
 
 **Install from a local clone:**
 
 1. **Settings → Plugin Management → Discover → `+`**
 2. Choose **local directory**
-3. Point at `plugins/block-no-verify` (e.g. `/Users/kirby/home/commithooks/plugins/block-no-verify`)
-4. Install
+3. Point at the **`plugins/`** directory (the one containing `marketplace.json`),
+   e.g. `/Users/kirby/home/commithooks/plugins` — not the plugin folder itself
+4. Install `block-no-verify` from the marketplace listing
 
 The plugin installs and enables automatically. A plugin hook auto-enables
 the hook runner — no `hooks.enabled: true` needed.
@@ -173,11 +175,10 @@ The ZCode matcher is `^(Bash|Write|Edit|mcp__github__.*)$`, broader than the
 Codex matcher so it also catches file-write attacks on `.git/hooks/*` and
 `.husky/*`. `Write|Edit` absorb `ApplyPatch` via ZCode's tool-name alias.
 
-> Marketplace-based distribution: the Codex-shaped `marketplace.json` at this
-> repo's root is **not** consumed by ZCode (ZCode uses source kinds
-> `directory`/`github`/`git`/`url`/`git-subdir`, not Codex's `"local"`). A
-> ZCode-shaped marketplace file is a follow-up; for now install via local
-> directory as above.
+> The Codex-shaped `marketplace.json` at this repo's root is **not** consumed
+> by ZCode (ZCode uses source kinds `directory`/`github`/`git`/`url`/
+> `git-subdir`, not Codex's `"local"`). The ZCode-shaped `plugins/marketplace.json`
+> is the one ZCode reads.
 
 ## What `block-no-verify` catches
 

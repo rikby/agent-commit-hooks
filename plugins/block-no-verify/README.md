@@ -25,20 +25,23 @@ codex plugin add block-no-verify@agent-commit-hooks
 
 ## ZCode
 
-This plugin is auto-detected by ZCode via `.zcode-plugin/plugin.json`. ZCode
-reads `.zcode-hooks.json` (not the Codex `hooks/hooks.json`) and uses
-`${CLAUDE_PLUGIN_ROOT}` to locate the runner script.
+This plugin is listed in `../marketplace.json` (ZCode-shaped, lives in the
+`plugins/` directory). The plugin folder carries `.zcode-plugin/plugin.json`
+and `.zcode-hooks.json`; ZCode reads the latter (not Codex's `hooks/hooks.json`)
+and uses `${CLAUDE_PLUGIN_ROOT}` to locate the runner script.
 
 ### Install (local directory)
 
 In ZCode: **Settings → Plugin Management → Discover → `+`** → add as a
-**local directory**:
+**local directory** — point at the **parent `plugins/` directory** (the one
+containing `marketplace.json`), not this plugin folder:
 
 ```
-/Users/kirby/home/commithooks/plugins/block-no-verify
+/Users/kirby/home/commithooks/plugins
 ```
 
-The plugin installs and enables automatically. The hook runner is enabled
+Then install `block-no-verify` from the resulting marketplace listing. The
+plugin installs and enables automatically. The hook runner is enabled
 automatically when any plugin contributes a hook — no `hooks.enabled: true`
 needed.
 

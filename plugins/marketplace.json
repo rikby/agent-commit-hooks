@@ -1,0 +1,9 @@
+{
+  "name": "agent-commit-hooks",
+  "plugins": [
+    {
+      "name": "block-no-verify",
+      "source": "./block-no-verify"
+    }
+  ]
+}
