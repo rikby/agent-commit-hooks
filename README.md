@@ -62,6 +62,7 @@ See [docs/eslint-import-alias.md](docs/eslint-import-alias.md) for ESLint import
 | `check-markdown-fences-parity` | P1 | Detects unclosed fences, closing fences with info strings, bare opening fences; autofix with `--fix` / `--fix-staged` | None |
 | `check-markdown-fences-style` | P1 | Runs `markdownlint-cli2` for MD031/040/046/048 | `markdownlint-cli2` |
 | `check-wireloom-blocks` | P1 | Validates staged markdown `wireloom` fenced blocks | `node` or `bun`, Wireloom parser path |
+| `enforce-semantic-classes` | P1 | Blocks CSS-framework utility classes (Tailwind/Windi/Uno) in component markup — protects `@layer components` from being shadowed. [Docs](docs/semantic-classes.md) | `node` or `bun` |
 
 ### TypeScript / Node
 
@@ -102,6 +103,10 @@ pre-commit:
       env:
         BLOCKED_IMPORT_PATTERN: 'from ["\x27](\.\./)+shared/'
         ALIAS: "@myorg/shared"
+    "enforce-semantic-classes.sh":
+      env:
+        CONTRACT_ONLY: "1"                       # only flag files with colocated @layer components CSS
+        SEMANTIC_ALLOW: '^(ticket-card|vword)'   # project-specific semantic prefixes (regex)
 ```
 
 ### Skip hooks temporarily

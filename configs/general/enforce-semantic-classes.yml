@@ -1,0 +1,36 @@
+# Enforce semantic class names — block CSS-framework utility classes in markup
+# P1 — requires: node OR bun (no npm dependencies)
+#
+# Flags Tailwind / WindiCSS / UnoCSS utility classes written directly in
+# component markup (JSX/Svelte/Vue/HTML) so they can't silently shadow your
+# @layer components CSS contract. See docs/semantic-classes.md for the full
+# rationale, the cascade-layer hazard, and configuration.
+#
+# Two modes (set via env in your project's lefthook.yml):
+#
+#   CONTRACT_ONLY=1  (recommended) — only flag a file when it has a colocated
+#                     `.css` declaring `@layer components`. High precision,
+#                     zero noise on utility-heavy files without a CSS contract.
+#                     Default ON here; override with CONTRACT_ONLY=0 to lint
+#                     every file (loud on Tailwind-saturated codebases).
+#
+#   SEMANTIC_ALLOW   regex of tokens to always treat as semantic, e.g.
+#                     '^(ticket-card|vword|board-)' — add your project's
+#                     semantic prefixes so they're never flagged.
+#
+# Example project override (lefthook-local.yml or inline `env:`):
+#
+#   pre-commit:
+#     scripts:
+#       "enforce-semantic-classes.sh":
+#         env:
+#           SEMANTIC_ALLOW: '^(ticket-card|vword|board-)'
+
+pre-commit:
+  scripts:
+    "enforce-semantic-classes.sh":
+      runner: sh
+      glob: "*.{js,jsx,ts,tsx,mjs,cjs,svelte,vue,html,htm,php,astro}"
+      env:
+        CONTRACT_ONLY: "1"
+        SEMANTIC_ALLOW: ""
