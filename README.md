@@ -106,7 +106,8 @@ pre-commit:
     "enforce-semantic-classes.sh":
       env:
         CONTRACT_ONLY: "1"                       # only flag files with colocated @layer components CSS
-        SEMANTIC_ALLOW: '^(ticket-card|vword)'   # project-specific semantic prefixes (regex)
+        # SEMANTIC_ALLOW is rarely needed — the classifier recognizes semantic
+        # names by shape automatically. Leave empty unless you hit an edge case.
 ```
 
 ### Skip hooks temporarily

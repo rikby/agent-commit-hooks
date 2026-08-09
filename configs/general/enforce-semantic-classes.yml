@@ -6,25 +6,25 @@
 # @layer components CSS contract. See docs/semantic-classes.md for the full
 # rationale, the cascade-layer hazard, and configuration.
 #
-# Two modes (set via env in your project's lefthook.yml):
+# The classifier recognizes semantic classes automatically by their shape — you
+# do NOT need to register your BEM/semantic names. The SEMANTIC_ALLOW env var
+# below is an escape hatch for rare edge cases and stays empty by default.
 #
-#   CONTRACT_ONLY=1  (recommended) — only flag a file when it has a colocated
-#                     `.css` declaring `@layer components`. High precision,
-#                     zero noise on utility-heavy files without a CSS contract.
-#                     Default ON here; override with CONTRACT_ONLY=0 to lint
-#                     every file (loud on Tailwind-saturated codebases).
+# Mode (set via env in your project's lefthook.yml):
 #
-#   SEMANTIC_ALLOW   regex of tokens to always treat as semantic, e.g.
-#                     '^(ticket-card|vword|board-)' — add your project's
-#                     semantic prefixes so they're never flagged.
+#   CONTRACT_ONLY=1  (recommended, default here) — only flag a file when it has
+#                     a colocated `.css` declaring `@layer components`. High
+#                     precision, zero noise on utility-heavy files without a CSS
+#                     contract. Override with CONTRACT_ONLY=0 to lint every file.
 #
-# Example project override (lefthook-local.yml or inline `env:`):
+# Escape hatches (leave empty unless you hit a specific issue):
 #
-#   pre-commit:
-#     scripts:
-#       "enforce-semantic-classes.sh":
-#         env:
-#           SEMANTIC_ALLOW: '^(ticket-card|vword|board-)'
+#   SEMANTIC_ALLOW   regex; tokens matching it are never flagged. Rarely needed
+#                     — the shape-based classifier already recognizes BEM-style
+#                     and kebab-case semantic names. Only set this if a genuine
+#                     project utility is being misclassified as semantic.
+#   UTILITY_ALLOW    regex; tokens matching it are always treated as a utility.
+#                     Use for project-specific utilities not in the built-in set.
 
 pre-commit:
   scripts:
