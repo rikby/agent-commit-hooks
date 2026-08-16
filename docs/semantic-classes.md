@@ -36,9 +36,9 @@ markup of a component that *also* owns a CSS contract:
 // TicketCard.tsx — the component owns a semantic contract:
 //   src/components/TicketCard/ticket.css → @layer components { .ticket-card { … } }
 <div className="ticket-card flex h-9">
-  {/*            ^^^^^^^^^^^^  ^^^^^ ^^^^
-                  semantic       │    │
-                                 └── these utilities now outrank any
+  {/*           ^^^^^^^^^^^ ^^^^ ^^^
+                  semantic   │    │
+                             └────└──these utilities now outrank any
                                      .ticket-card rule for display/height */}
 ```
 
