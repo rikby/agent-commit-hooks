@@ -97,20 +97,9 @@ codex plugin add block-no-verify@agent-commit-hooks
 
 Codex may ask you to review/trust the hook before it runs.
 
-For plugins that need environment variables, set them in `~/.codex/config.toml`
-so Codex Desktop and CLI subprocesses receive the same values:
-
-```toml
-[shell_environment_policy]
-inherit = "core"
-
-[shell_environment_policy.set]
-WIRELOOM_INDEX_PATH = "/absolute/path/to/Wireloom/dist/index.js"
-WIRELOOM_RUNTIME = "auto"
-```
-
-Restart Codex after editing the config. Do not store secrets there; values are
-plain text.
+Plugins that need environment variables (e.g. Wireloom paths) read them from
+`~/.codex/config.toml` — the exact snippet and caveats live in
+[plugins/wireloom-validate/README.md](plugins/wireloom-validate/README.md#configure).
 
 ### OpenCode
 
@@ -155,12 +144,7 @@ Create `.cursor/hooks.json`:
 ### ZCode
 
 The `plugins/` directory ships a ZCode-shaped `marketplace.json` that lists
-`block-no-verify` (source `./block-no-verify`). The plugin folder itself
-carries `.zcode-plugin/plugin.json` and `.zcode-hooks.json`; ZCode reads the
-latter (not Codex's `hooks/hooks.json`) and expands `${CLAUDE_PLUGIN_ROOT}`
-to locate the runner script.
-
-**Install from a local clone:**
+`block-no-verify`. Install from a local clone:
 
 1. **Settings → Plugin Management → Discover → `+`**
 2. Choose **local directory**
@@ -168,12 +152,8 @@ to locate the runner script.
    e.g. `/Users/kirby/home/commithooks/plugins` — not the plugin folder itself
 4. Install `block-no-verify` from the marketplace listing
 
-The plugin installs and enables automatically. A plugin hook auto-enables
-the hook runner — no `hooks.enabled: true` needed.
-
-The ZCode matcher is `^(Bash|Write|Edit|mcp__github__.*)$`, broader than the
-Codex matcher so it also catches file-write attacks on `.git/hooks/*` and
-`.husky/*`. `Write|Edit` absorb `ApplyPatch` via ZCode's tool-name alias.
+Matcher details (`^(Bash|Write|Edit|mcp__github__.*)$`) and how ZCode resolves
+the runner: [plugins/block-no-verify/README.md](plugins/block-no-verify/README.md#zcode).
 
 > The Codex-shaped `marketplace.json` at this repo's root is **not** consumed
 > by ZCode (ZCode uses source kinds `directory`/`github`/`git`/`url`/

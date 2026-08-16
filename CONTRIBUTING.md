@@ -26,7 +26,7 @@ No build step. No install step. Just shell scripts and YAML files.
 ## Before You Start
 
 1. **Read `AGENTS.md`** — architecture rules, shell script conventions, how hooks work
-3. **Check existing hooks** — look at `configs/` and `scripts/` for patterns to follow
+2. **Check existing hooks** — look at `configs/` and `.lefthook/` for patterns to follow
 
 ## Making Changes
 
@@ -45,21 +45,18 @@ See `AGENTS.md` → "Adding a New Hook" — full step-by-step.
 
 1. Create `configs/<category>/` directory
 2. Write YAML configs following existing patterns
-3. Add any new shell scripts to `scripts/`
+3. Add any new shell scripts to `.lefthook/<hook>/` and sync the copy to `scripts/`
 4. Add tests in `tests/run-tests.sh`
-5. Update `README.md` (hook reference table + project templates)
+5. Update [docs/hook-reference.md](docs/hook-reference.md) and `README.md`
 6. Update `AGENTS.md` (category table + key files)
 
 ## Shell Script Rules
 
-These are non-negotiable. PRs violating these will be asked to fix:
-
-- **`#!/bin/sh`** — POSIX sh, not bash
-- **Function wrapper** with `return 1`/`return 0` — never bare `exit 1`
-- **No bashisms** — no `[[ ]]`, no arrays, no `read -a`
-- **Detailed error messages** — `❌` prefix, what's wrong, how to fix
-- **Defensive guards** — null checks, empty input, missing files
-- **Executable** — `chmod +x` on all scripts
+Non-negotiable conventions — POSIX sh (`#!/bin/sh`), function wrappers with
+`return` (never bare `exit`), no bashisms, defensive guards, `❌`-prefixed
+error messages that say what's wrong and how to fix it. The full rules with
+examples live in [AGENTS.md](AGENTS.md#shell-script-conventions); PRs
+violating them will be asked to fix.
 
 ## Testing
 
@@ -111,6 +108,7 @@ Breaking changes are noted in CHANGELOG.md.
 - [ ] README.md updated (hook reference table)
 - [ ] AGENTS.md updated if conventions changed
 - [ ] Breaking changes documented in CHANGELOG.md
+- [ ] Hook table updated in [docs/hook-reference.md](docs/hook-reference.md) and `README.md`
 
 ## Questions?
 

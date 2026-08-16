@@ -18,3 +18,9 @@ node_modules/
 /.mdt-config.toml
 /.mdt-next
 /research
+
+# Local working notes — never published (same policy as /research)
+/incidents
+/block-no-verify-upstream-pr.md
+/block-no-verify-scope-fix.patch
+/invalid-wireloom-example.md

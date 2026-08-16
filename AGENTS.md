@@ -15,19 +15,24 @@ Consuming projects pick configs in their `lefthook.yml`, run `lefthook install`,
 
 ## Repository Structure
 
-```
+```text
 configs/
-  general/          # 7 hooks — every project
+  general/          # 10 hooks — every project
   typescript/       # 2 hooks — TS/Node projects
   monorepo/         # 1 hook  — multi-package TS
   mdt/              # 1 hook  — MDT ticket manager
 .lefthook/
   pre-commit/       # pre-commit hook scripts
   commit-msg/       # commit-msg hook scripts
-scripts/            # Legacy — kept for backward compat, tests still run from here
+scripts/            # Synced copy of .lefthook/ — tests run against this
 tests/
   run-tests.sh      # Shell script unit tests (run with: sh tests/run-tests.sh)
-README.md            # User-facing docs — quickstart, hook reference, templates
+plugins/            # Codex/ZCode plugin packages (block-no-verify, wireloom-validate)
+docs/
+  hook-reference.md # Canonical hook table, env vars, invocation modes
+  semantic-classes.md, eslint-import-alias.md
+README.md            # User-facing hub — quickstart, links to all docs
+INSTALL.md           # Installation guide for consumers
 AGENTS.md            # Agent instructions — conventions, rules
 CONTRIBUTING.md      # Contributor guide — how to contribute, versioning
 ```
@@ -50,7 +55,7 @@ pre-commit:
         BLOCK_PATTERNS: "*.trace.md,*.min.js"
 ```
 
-```
+```text
 # Lefthook resolves to:
 #   Without ref: .git/info/lefthook-remotes/agent-commit-hooks/.lefthook/pre-commit/block-generated-files.sh
 #   With ref:    .git/info/lefthook-remotes/agent-commit-hooks-v0.1.0/.lefthook/pre-commit/block-generated-files.sh
@@ -61,6 +66,7 @@ pre-commit:
 Two patterns — choose based on what the script needs:
 
 **Option C (always for `scripts:`):** Script calls `git diff --cached` itself. Lefthook's `scripts:` mechanism does **not** pass staged files as arguments.
+
 ```yaml
 # YAML — no args passed to scripts, script reads git diff directly
 pre-commit:
@@ -68,6 +74,7 @@ pre-commit:
     "block-home-paths-code.sh":
       runner: sh
 ```
+
 ```sh
 # Script
 staged_files=$(git diff --cached --name-only --diff-filter=ACM | grep -v '\.husky/' || true)
@@ -75,6 +82,7 @@ for file in $staged_files; do ...
 ```
 
 **Option D (only for `commands:` / `run:`):** Lefthook passes staged files via `{staged_files}` template. Use `$@` in the script.
+
 ```yaml
 # YAML — {staged_files} expanded by lefthook in run: commands
 pre-commit:
@@ -82,6 +90,7 @@ pre-commit:
     block-generated:
       run: sh scripts/block-generated-files.sh {staged_files}
 ```
+
 ```sh
 # Script
 for file in "$@"; do ...
@@ -90,6 +99,7 @@ for file in "$@"; do ...
 ### How env vars configure hooks
 
 YAML configs define defaults. Consuming projects override in their `lefthook.yml`:
+
 ```yaml
 # Remote config defines default
 scripts:
@@ -108,11 +118,13 @@ pre-commit:
 ### Inline vs script
 
 Simple checks stay inline in YAML (no shell script file):
+
 - `block-env-files` — simple grep/case on `{staged_files}`
 - `block-credential-files` — simple grep/case on `{staged_files}`
 - `block-co-authored-by` — simple grep on `{1}`
 
 Complex checks get a script in `.lefthook/<hook>/`:
+
 - Multi-line awk parsers, multiple rules, skip logic, fix suggestions
 
 **IMPORTANT:** Do NOT use `run:` commands with hardcoded paths to `.git/info/lefthook-remotes/`.
@@ -178,7 +190,7 @@ block_something "$@"
 1. Add the var with a default in the YAML config's `env:` block
 2. Use `$VAR` or `${VAR:-default}` in the shell script
 3. Document it in the config's YAML comment header
-4. Update README.md hook reference table
+4. Update the env-var table in `docs/hook-reference.md`
 
 ### Fixing a bug
 
@@ -206,6 +218,7 @@ block_something "$@"
 ### Step 3: Write the YAML config
 
 Follow the pattern in existing configs. Key fields:
+
 ```yaml
 pre-commit:              # or commit-msg
   scripts:
@@ -227,7 +240,7 @@ pre-commit:              # or commit-msg
 
 ### Step 5: Update docs
 
-- `README.md` — add to hook reference table
+- `docs/hook-reference.md` — add to the hook tables; `README.md` — add to the category list
 - `AGENTS.md` — update if conventions changed
 
 ### Step 6: Test
@@ -268,11 +281,12 @@ sh tests/run-tests.sh
 
 | File | Purpose |
 |---|---|
-| `README.md` | User-facing — quickstart, hook reference, project templates |
+| `README.md` | User-facing hub — quickstart, links to all docs |
 | `INSTALL.md` | Installation guide for consumers |
+| `docs/hook-reference.md` | Canonical hook table, env vars, invocation modes |
 | `configs/*/` | YAML hook definitions consumed via Lefthook remotes |
 | `.lefthook/*/` | Scripts resolved by lefthook's `source_dir` mechanism |
-| `scripts/` | Legacy script copies (kept for backward compat and tests) |
+| `scripts/` | Synced copies of `.lefthook/*/` (tests run against these) |
 
 ## Do NOT
 

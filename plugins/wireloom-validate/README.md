@@ -4,14 +4,30 @@ Codex plugin that validates changed markdown `wireloom` fenced blocks when the a
 
 ## Configure
 
-Set these in the project environment where Codex runs:
+Set Wireloom variables in Codex config, not shell profile exports. Edit
+`~/.codex/config.toml`:
 
-```sh
-export WIRELOOM_INDEX_PATH="./node_modules/wireloom/dist/index.js"
-export WIRELOOM_RUNTIME="auto" # auto, node, or bun
+```toml
+[shell_environment_policy]
+inherit = "core"
+
+[shell_environment_policy.set]
+WIRELOOM_INDEX_PATH = "/absolute/path/to/Wireloom/dist/index.js"
+WIRELOOM_RUNTIME = "auto"
 ```
 
-`WIRELOOM_INDEX_PATH` can be absolute or relative to the project cwd.
+`WIRELOOM_INDEX_PATH` can be absolute or relative to the project cwd, but
+absolute paths are best for Codex Desktop. Restart Codex after changing config.
+Do not store secrets in this file; values are plain text.
+
+If the parser is not available, build it from source:
+
+```sh
+git clone https://github.com/StardockCorp/Wireloom.git
+cd Wireloom
+npm install
+npm run build
+```
 
 ## Install From This Repo
 

@@ -261,8 +261,8 @@ usable on real codebases.
 
 | File | Role |
 |------|------|
-| `scripts/enforce-semantic-classes.mjs` | The linter — token extraction, utility classification, contract detection. Dependency-free, runs on node or bun. |
-| `scripts/enforce-semantic-classes.sh` | Thin shell wrapper so lefthook can invoke it with `runner: sh` (matches repo convention). |
+| `.lefthook/pre-commit/enforce-semantic-classes.mjs` | The linter — token extraction, utility classification, contract detection. Dependency-free, runs on node or bun. |
+| `.lefthook/pre-commit/enforce-semantic-classes.sh` | Thin shell wrapper so lefthook can invoke it with `runner: sh` (matches repo convention). |
 | `configs/general/enforce-semantic-classes.yml` | Lefthook hook definition — `pre-commit`, globs, default env. |
 
 ## 10. Validation evidence

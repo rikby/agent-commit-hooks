@@ -9,7 +9,7 @@ Centralized hook definitions that any project can opt into via Lefthook remotes.
 
 ## How it works
 
-```
+```text
 ┌─────────────────────────┐        remotes:          ┌──────────────────────────────┐
 │  Your Project           │ ── https://github.com ─→ │  agent-commit-hooks          │
 │                         │        configs:          │  └─ configs/general/         │
@@ -49,34 +49,28 @@ See [docs/eslint-import-alias.md](docs/eslint-import-alias.md) for ESLint import
 
 ## Available Hooks
 
-### General (every project)
+Full reference — priorities, dependencies, invocation modes, env vars:
+[docs/hook-reference.md](docs/hook-reference.md).
 
-| Hook | Priority | What it blocks | Dependencies |
-|---|---|---|---|
-| `block-env-files` | P0 | `.env`, `.env.local`, etc. (allows `.env.sample`, `.env.example`) | None |
-| `block-credential-files` | P0 | `*.pem`, `*.key`, `id_rsa`, SSH keys, certificates | None |
-| `block-home-paths-code` | P0 | Absolute `/Users/...` or `/home/...` paths in staged code | None |
-| `block-home-paths-commit-msg` | P1 | Absolute paths in commit messages | None |
-| `block-generated-files` | P1 | Build artifacts, minified files, source maps, OS metadata | None |
-| `block-co-authored-by` | P1 | `Co-Authored-By` lines in commit messages | None |
-| `check-markdown-fences-parity` | P1 | Detects unclosed fences, closing fences with info strings, bare opening fences; autofix with `--fix` / `--fix-staged` | None |
-| `check-markdown-fences-style` | P1 | Runs `markdownlint-cli2` for MD031/040/046/048 | `markdownlint-cli2` |
-| `check-wireloom-blocks` | P1 | Validates staged markdown `wireloom` fenced blocks | `node` or `bun`, Wireloom parser path |
-| `enforce-semantic-classes` | P1 | Blocks CSS-framework utility classes (Tailwind/Windi/Uno) in component markup — protects `@layer components` from being shadowed. [Docs](docs/semantic-classes.md) | `node` or `bun` |
+### General (`configs/general/`) — every project
 
-### TypeScript / Node
+- `block-env-files`, `block-credential-files` — secrets never reach git
+- `block-home-paths-code`, `block-home-paths-commit-msg` — no absolute `/Users/...` paths
+- `block-generated-files` — build artifacts, minified files, source maps
+- `block-co-authored-by` — no AI attribution in commit messages
+- `check-markdown-fences-parity` / `-style` — markdown fence checks (autofix built in)
+- `check-wireloom-blocks` — validates ` ```wireloom ` fenced blocks
+- `enforce-semantic-classes` — keeps CSS utilities out of component markup ([design](docs/semantic-classes.md))
 
-| Hook | Priority | What it does | Dependencies |
-|---|---|---|---|
-| `run-knip` | P1 | Dead code detection | `knip` |
-| `run-eslint-staged` | P1 | Lints staged `.ts`/`.tsx` files, auto-fixes ([import alias plugin](docs/eslint-import-alias.md)) | `eslint` |
+### TypeScript (`configs/typescript/`)
+
+- `run-knip` — dead code detection
+- `run-eslint-staged` — lint staged `.ts`/`.tsx` with auto-fix ([import alias plugin](docs/eslint-import-alias.md))
 
 ### Specialized
 
-| Hook | Category | What it does | Dependencies |
-|---|---|---|---|
-| `block-shared-imports` | monorepo | Blocks relative `../shared/` imports, enforces path aliases | None |
-| `block-mdt-incomplete-tasks` | mdt | Unchecked `[ ]` tasks in [markdown-ticket](https://github.com/andkirby/markdown-ticket) files when ticket status is Implemented | `mdt-cli`, `python3` |
+- `block-shared-imports` (monorepo) — blocks relative `../shared/` imports, enforces aliases
+- `block-mdt-incomplete-tasks` (mdt) — no unchecked tasks in Implemented tickets
 
 ## Configuration
 
@@ -110,6 +104,8 @@ pre-commit:
         # names by shape automatically. Leave empty unless you hit an edge case.
 ```
 
+All variables and defaults: [hook reference](docs/hook-reference.md#environment-variables).
+
 ### Skip hooks temporarily
 
 ```sh
@@ -125,20 +121,24 @@ bunx lefthook install
 
 ## Repository Structure
 
-```
+```text
 agent-commit-hooks/
 ├── configs/                          # YAML hook definitions (git remote)
 │   ├── general/                      # Every project
 │   ├── typescript/                   # TS/Node projects
-│   └── monorepo/                     # Multi-package projects
+│   ├── monorepo/                     # Multi-package projects
+│   └── mdt/                          # Markdown-ticket projects
 ├── .lefthook/                        # Scripts resolved by lefthook source_dir
 │   ├── pre-commit/                   # pre-commit hook scripts
 │   └── commit-msg/                   # commit-msg hook scripts
-├── scripts/                          # Legacy scripts (kept for backward compat)
+├── scripts/                          # Synced copy of .lefthook/ that tests run
 ├── tests/                            # Shell script tests
-├── docs/                             # Installation guides & hook reference
-│   └── eslint-import-alias.md       # ESLint import alias plugin setup
-└── INSTALL.md                        # Installation guide
+├── plugins/                          # Codex/ZCode plugins (block-no-verify, wireloom-validate)
+├── docs/
+│   ├── hook-reference.md             # Every hook: deps, env vars, invocation modes
+│   ├── eslint-import-alias.md        # ESLint import alias plugin setup
+│   └── semantic-classes.md           # enforce-semantic-classes design doc
+└── INSTALL.md                        # Installation guide (incl. --no-verify guardrails)
 ```
 
 ## License

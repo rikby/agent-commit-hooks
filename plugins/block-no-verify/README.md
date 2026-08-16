@@ -7,7 +7,8 @@ It catches:
 - `git ... --no-verify`
 - `git commit -n`
 - `git -c core.hooksPath=...`
-- GitHub MCP write tools such as `mcp__github__push_files`
+
+Full command-by-command coverage: [INSTALL.md → "What block-no-verify catches"](../../INSTALL.md#what-block-no-verify-catches).
 
 ## Install From This Repo
 
@@ -36,7 +37,7 @@ In ZCode: **Settings → Plugin Management → Discover → `+`** → add as a
 **local directory** — point at the **parent `plugins/` directory** (the one
 containing `marketplace.json`), not this plugin folder:
 
-```
+```text
 /Users/kirby/home/commithooks/plugins
 ```
 
