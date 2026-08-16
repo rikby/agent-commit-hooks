@@ -55,7 +55,20 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const inputPath = process.env.CODEX_WIRELOOM_INPUT;
-const indexPathInput = process.env.WIRELOOM_INDEX_PATH || '';
+const indexPathInput = process.env.WIRELOOM_INDEX_PATH || readCodexConfigSetting('WIRELOOM_INDEX_PATH') || '';
+
+function readCodexConfigSetting(name) {
+  const configPath = path.join(os.homedir(), '.codex', 'config.toml');
+  try {
+    const text = fs.readFileSync(configPath, 'utf8');
+    const sectionMatch = text.match(/\[shell_environment_policy\.set\]([\s\S]*?)(?:\n\[|$)/);
+    const section = sectionMatch?.[1] ?? '';
+    const pattern = new RegExp(`^\\s*${name}\\s*=\\s*"([^"]+)"\\s*$`, 'm');
+    return section.match(pattern)?.[1] ?? '';
+  } catch {
+    return '';
+  }
+}
 
 function readHookInput() {
   try {
@@ -146,8 +159,16 @@ if (!indexPathInput) {
     'Wireloom parser path is not configured.',
     '',
     'Markdown files touched by this Codex session contain ```wireloom blocks.',
-    'Set WIRELOOM_INDEX_PATH to this project\'s Wireloom dist index.js path.',
-    'Example: WIRELOOM_INDEX_PATH=./node_modules/wireloom/dist/index.js',
+    'Set WIRELOOM_INDEX_PATH in ~/.codex/config.toml so Codex injects it into hook subprocesses.',
+    '',
+    '[shell_environment_policy]',
+    'inherit = "core"',
+    '',
+    '[shell_environment_policy.set]',
+    'WIRELOOM_INDEX_PATH = "/absolute/path/to/Wireloom/dist/index.js"',
+    'WIRELOOM_RUNTIME = "auto"',
+    '',
+    'Restart Codex after editing the config.',
     '',
     'Wireloom source: https://github.com/StardockCorp/Wireloom',
     'Build parser: git clone https://github.com/StardockCorp/Wireloom.git && cd Wireloom && npm install && npm run build',
@@ -162,7 +183,7 @@ if (!fs.existsSync(indexPath)) {
   blockStop([
     `Wireloom parser not found: ${indexPath}`,
     '',
-    'Update WIRELOOM_INDEX_PATH for this project/environment.',
+    'Update WIRELOOM_INDEX_PATH in ~/.codex/config.toml, then restart Codex.',
     '',
     'Wireloom source: https://github.com/StardockCorp/Wireloom',
     'Build parser: git clone https://github.com/StardockCorp/Wireloom.git && cd Wireloom && npm install && npm run build',

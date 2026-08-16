@@ -405,7 +405,7 @@ git commit -m "codex no wireloom" -q
 printf '```wireloom\nwindow "Needs parser":\n  panel:\n    text "Hello"\n```\n' > codex-wireloom-missing-parser.md
 git add codex-wireloom-missing-parser.md
 track_codex_markdown "codex-wireloom-missing-parser.md"
-missing_parser_output=$(printf '{"cwd":"%s","session_id":"%s","hook_event_name":"Stop","stop_hook_active":false}\n' "$TEST_DIR" "$CODEX_WIRELOOM_SESSION" | CODEX_WIRELOOM_STATE_DIR="$CODEX_WIRELOOM_STATE_DIR" WIRELOOM_RUNTIME=node sh "$CODEX_WIRELOOM_HOOK" 2>/dev/null)
+missing_parser_output=$(printf '{"cwd":"%s","session_id":"%s","hook_event_name":"Stop","stop_hook_active":false}\n' "$TEST_DIR" "$CODEX_WIRELOOM_SESSION" | HOME="$TEST_DIR" CODEX_WIRELOOM_STATE_DIR="$CODEX_WIRELOOM_STATE_DIR" WIRELOOM_RUNTIME=node sh "$CODEX_WIRELOOM_HOOK" 2>/dev/null)
 if printf '%s\n' "$missing_parser_output" | grep -q '"decision":"block"' && printf '%s\n' "$missing_parser_output" | grep -q 'Wireloom parser path is not configured'; then
   pass "Codex hook hard-fails when WIRELOOM_INDEX_PATH is missing"
 else
