@@ -1,0 +1,9 @@
+{
+  "name": "agent-commit-hooks",
+  "private": true,
+  "description": "Hook distribution repo: plugins + scripts that gate and format agent tool calls. Root deps pin the formatter toolchain the oxc-format hook falls back to.",
+  "devDependencies": {
+    "oxfmt": "0.71.0",
+    "oxlint": "1.86.0"
+  }
+}

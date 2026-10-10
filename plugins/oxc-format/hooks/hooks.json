@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "^(Edit|Write)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun \"${CLAUDE_PLUGIN_ROOT}/scripts/agent-oxc.ts\"",
+            "timeout": 20,
+            "statusMessage": "oxfmt + oxlint on the touched file"
+          }
+        ]
+      }
+    ]
+  }
+}

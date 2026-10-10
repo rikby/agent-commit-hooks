@@ -1,0 +1,15 @@
+{
+  "version": "0.1.0",
+  "name": "oxc-format",
+  "description": "PostToolUse hook that formats and lints the file the agent just touched (oxfmt + oxlint) with a clean-at-HEAD guard and a project opt-in gate for rewrites",
+  "author": {
+    "name": "agent-commit-hooks"
+  },
+  "hooks": "./hooks/hooks.json",
+  "keywords": [
+    "hooks",
+    "oxfmt",
+    "oxlint",
+    "format"
+  ]
+}

@@ -4,6 +4,10 @@
     {
       "name": "block-no-verify",
       "source": "./block-no-verify"
+    },
+    {
+      "name": "oxc-format",
+      "source": "./oxc-format"
     }
   ]
 }
