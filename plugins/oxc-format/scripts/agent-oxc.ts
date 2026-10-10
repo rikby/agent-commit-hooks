@@ -27,7 +27,7 @@
  */
 
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { homedir, tmpdir } from "node:os";
 import { basename, dirname, join } from "node:path";
 
 interface HookInput {
@@ -58,7 +58,9 @@ const rel = file.slice(root.length + 1);
 if (SKIP_DIR.test(rel)) process.exit(0);
 if (!(await Bun.file(file).exists())) process.exit(0);
 
-// Project pin first, then the distribution repo's pin (walk up from here).
+// Project pin first, then the distribution repo's pin (walk up from here;
+// when installed as a plugin the script runs from an app cache dir with no
+// node_modules ancestor, so fall back to the repo's documented home).
 async function resolveBin(name: string): Promise<string | null> {
   const projectBin = join(root!, "node_modules", ".bin", name);
   if (await Bun.file(projectBin).exists()) return projectBin;
@@ -67,9 +69,12 @@ async function resolveBin(name: string): Promise<string | null> {
     const p = join(dir, "node_modules", ".bin", name);
     if (await Bun.file(p).exists()) return p;
     const parent = dirname(dir);
-    if (parent === dir) return null;
+    if (parent === dir) break;
     dir = parent;
   }
+  const homeRepoBin = join(homedir(), "home", "commithooks", "node_modules", ".bin", name);
+  if (await Bun.file(homeRepoBin).exists()) return homeRepoBin;
+  return null;
 }
 
 const oxfmt = await resolveBin("oxfmt");
