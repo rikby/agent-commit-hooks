@@ -55,6 +55,7 @@ Two manifest+hooks pairs serve three platforms:
 | Codex | `.codex-plugin/plugin.json` | `hooks/hooks.json` (conventional path) | `^(apply_patch)$` | `${PLUGIN_ROOT}` |
 | ZCode | probes `.claude-plugin/plugin.json` | `.claude-plugin/hooks.json` (via its `hooks:` pointer) | `^(Edit\|Write)$` | `${CLAUDE_PLUGIN_ROOT}` |
 | Claude Code | `.claude-plugin/plugin.json` | `.claude-plugin/hooks.json` (via its `hooks:` pointer) | `^(Edit\|Write)$` | `${CLAUDE_PLUGIN_ROOT}` |
+| pi | — (TypeScript extension) | `pi-extension/index.ts` (`tool_result` handler on `edit`/`write`) | pi tools `edit`, `write` | n/a — uses hook input `cwd` |
 
 Codex support: its `apply_patch` tool input is a patch blob without a
 `file_path` field, so the script extracts touched paths from the blob's
@@ -65,12 +66,28 @@ env var, so the script also falls back to the hook input's `cwd` for the
 project root. The older `.zcode-plugin/` + `.zcode-hooks.json` pair carried
 by other plugins here is redundant for new work.
 
+pi support: a TypeScript extension (`pi-extension/index.ts`) listens on pi's
+`tool_result` event for `edit`/`write` calls, spawns this same script with
+the Claude-style stdin payload, and appends the `additionalContext` report
+to the tool result so the model sees the findings. All hook logic stays in
+`scripts/agent-oxc.ts`; the extension only bridges the input/output shapes.
+Self-check: `bun plugins/oxc-format/pi-extension/selfcheck.ts`.
+
 The ZCode/Claude matcher is `^(Edit|Write)$` — `Write|Edit` absorb
 `ApplyPatch` via ZCode's tool-name alias.
 
 ## Wiring it up
 
-Three ways; pick one per platform.
+Four ways; pick one per platform.
+
+**pi** — symlink the extension into pi's user extensions directory:
+
+```sh
+ln -sf "$PWD/plugins/oxc-format/pi-extension/index.ts" \
+  ~/.pi/agent/extensions/oxc-format.ts
+```
+
+New pi sessions pick it up; a running session needs `/reload`.
 
 **Codex** — the repo is already a Codex marketplace
 (`codex plugin marketplace add /Users/kirby/home/commithooks`), so:
