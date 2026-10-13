@@ -1,0 +1,21 @@
+{
+  "name": "oxc-format",
+  "version": "0.2.0",
+  "description": "Format and lint the files Codex edits with the oxc stack (oxfmt + oxlint).",
+  "author": {
+    "name": "agent-commit-hooks"
+  },
+  "interface": {
+    "displayName": "OXC Format",
+    "shortDescription": "oxfmt + oxlint on every file Codex edits.",
+    "longDescription": "Adds a Codex PostToolUse hook on apply_patch that formats and lints each touched file with oxfmt and oxlint, then reports remaining findings back to Codex as context. Files are only rewritten in projects that install the tools themselves; tracked files that are not oxfmt-baselined at HEAD are lint-reported only, protecting blame and per-hunk staging. Always advisory: never blocks an edit.",
+    "developerName": "agent-commit-hooks",
+    "category": "Productivity",
+    "capabilities": [
+      "Hooks",
+      "Formatting",
+      "Linting"
+    ],
+    "defaultPrompt": "Run oxfmt + oxlint on every file you edit and fix any reported findings."
+  }
+}

@@ -1,11 +1,11 @@
 {
-  "version": "0.1.0",
+  "version": "0.2.0",
   "name": "oxc-format",
-  "description": "PostToolUse hook that formats and lints the file the agent just touched (oxfmt + oxlint) with a clean-at-HEAD guard and a project opt-in gate for rewrites",
+  "description": "PostToolUse hook that formats and lints the files the agent just touched (oxfmt + oxlint) with a clean-at-HEAD guard and a project opt-in gate for rewrites",
   "author": {
     "name": "agent-commit-hooks"
   },
-  "hooks": "./hooks/hooks.json",
+  "hooks": "./.claude-plugin/hooks.json",
   "keywords": [
     "hooks",
     "oxfmt",

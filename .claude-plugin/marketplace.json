@@ -27,6 +27,19 @@
         "git",
         "safety"
       ]
+    },
+    {
+      "name": "oxc-format",
+      "source": "./plugins/oxc-format",
+      "description": "PostToolUse hook that formats and lints the files the agent just touched (oxfmt + oxlint)",
+      "version": "0.2.0",
+      "keywords": [
+        "codex",
+        "hooks",
+        "oxfmt",
+        "oxlint",
+        "format"
+      ]
     }
   ]
 }

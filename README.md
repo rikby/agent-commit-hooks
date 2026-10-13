@@ -133,7 +133,7 @@ agent-commit-hooks/
 │   └── commit-msg/                   # commit-msg hook scripts
 ├── scripts/                          # Synced copy of .lefthook/ that tests run
 ├── tests/                            # Shell script tests
-├── plugins/                          # Codex/ZCode plugins (block-no-verify, wireloom-validate)
+├── plugins/                          # Codex/ZCode plugins (block-no-verify, wireloom-validate, oxc-format)
 ├── docs/
 │   ├── hook-reference.md             # Every hook: deps, env vars, invocation modes
 │   ├── eslint-import-alias.md        # ESLint import alias plugin setup

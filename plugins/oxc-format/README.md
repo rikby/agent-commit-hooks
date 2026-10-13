@@ -1,8 +1,9 @@
 # OXC Format Plugin
 
-PostToolUse hook (Claude-schema `hooks/hooks.json`, consumed by ZCode and
-Claude Code) that formats and lints the file the agent just touched, using
-the oxc stack (`oxfmt` + `oxlint`).
+PostToolUse hook (Claude-schema, consumed by ZCode and Claude Code via
+`.claude-plugin/hooks.json`, and by Codex via the conventional
+`hooks/hooks.json`) that formats and lints the file(s) the agent just
+touched, using the oxc stack (`oxfmt` + `oxlint`).
 
 Behavior:
 
@@ -45,22 +46,41 @@ If neither resolves, the hook exits silently. To opt a project in:
 bun add -d oxfmt oxlint
 ```
 
-## Packaging notes (why so few files)
+## Packaging notes
 
-One manifest + one hooks file serve both ZCode and Claude Code: ZCode's
-plugin discovery probes `.claude-plugin/plugin.json` when no
-`.zcode-plugin/` exists, and its hook runner expands `${CLAUDE_PLUGIN_ROOT}`.
-The `.zcode-plugin/` + `.zcode-hooks.json` pair older plugins here carry is
-redundant for new work. Codex is deliberately **not** packaged: its
-`apply_patch` tool input is a patch blob without a `file_path` field, so the
-script's stdin parsing cannot find the touched file there.
+Two manifest+hooks pairs serve three platforms:
 
-The matcher is `^(Edit|Write)$` — `Write|Edit` absorb `ApplyPatch` via
-ZCode's tool-name alias.
+| Platform | Manifest | Hooks file | Matcher | Root var |
+|---|---|---|---|---|
+| Codex | `.codex-plugin/plugin.json` | `hooks/hooks.json` (conventional path) | `^(apply_patch)$` | `${PLUGIN_ROOT}` |
+| ZCode | probes `.claude-plugin/plugin.json` | `.claude-plugin/hooks.json` (via its `hooks:` pointer) | `^(Edit\|Write)$` | `${CLAUDE_PLUGIN_ROOT}` |
+| Claude Code | `.claude-plugin/plugin.json` | `.claude-plugin/hooks.json` (via its `hooks:` pointer) | `^(Edit\|Write)$` | `${CLAUDE_PLUGIN_ROOT}` |
+
+Codex support: its `apply_patch` tool input is a patch blob without a
+`file_path` field, so the script extracts touched paths from the blob's
+`*** Add File:` / `*** Update File:` headers (same technique as
+wireloom-validate's Codex hook) and formats/lints every touched file,
+joining findings into one `additionalContext` report. Codex sets no project
+env var, so the script also falls back to the hook input's `cwd` for the
+project root. The older `.zcode-plugin/` + `.zcode-hooks.json` pair carried
+by other plugins here is redundant for new work.
+
+The ZCode/Claude matcher is `^(Edit|Write)$` — `Write|Edit` absorb
+`ApplyPatch` via ZCode's tool-name alias.
 
 ## Wiring it up
 
-Two ways; pick one:
+Three ways; pick one per platform.
+
+**Codex** — the repo is already a Codex marketplace
+(`codex plugin marketplace add /Users/kirby/home/commithooks`), so:
+
+```sh
+codex plugin add oxc-format@agent-commit-hooks
+```
+
+Codex prompts to trust the hook on first use; a running session picks the
+plugin up on restart.
 
 - **Configuration hook (no plugin install, recommended for personal
   machines)** — one stanza in `~/.zcode/cli/config.json` covers every

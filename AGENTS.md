@@ -27,7 +27,7 @@ configs/
 scripts/            # Synced copy of .lefthook/ — tests run against this
 tests/
   run-tests.sh      # Shell script unit tests (run with: sh tests/run-tests.sh)
-plugins/            # Codex/ZCode plugin packages (block-no-verify, wireloom-validate)
+plugins/            # Codex/ZCode plugin packages (block-no-verify, wireloom-validate, oxc-format)
 docs/
   hook-reference.md # Canonical hook table, env vars, invocation modes
   semantic-classes.md, eslint-import-alias.md

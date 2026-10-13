@@ -93,6 +93,7 @@ Then install the plugin:
 
 ```sh
 codex plugin add block-no-verify@agent-commit-hooks
+codex plugin add oxc-format@agent-commit-hooks   # oxfmt + oxlint on files Codex edits
 ```
 
 Codex may ask you to review/trust the hook before it runs.
